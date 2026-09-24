@@ -1195,28 +1195,29 @@ async function xuLyMa(
        QR CHƯA CÓ TRONG HỆ THỐNG
     ===================================================== */
 
-    if (
-      !r.ok &&
-      r.code === "CHUA_CO_DON" &&
-      method === "QR"
-    ) {
+   if (
+  !r.ok &&
+  r.code === "CHUA_CO_DON" &&
+  method === "QR"
+) {
 
-      hienThiFormTaoDon(
-        r.maQR || ma
-      );
+  alert("DA DOC DUOC QR MOI: " + (r.maQR || ma));
 
-      beep(1);
+  hienThiFormTaoDon(
+    r.maQR || ma
+  );
 
-      document.getElementById(
-        "scanStatus"
-      ).innerHTML =
-        '<span class="error">' +
-        'QR chưa có trong hệ thống' +
-        '</span>';
+  beep(1);
 
-      return;
+  document.getElementById(
+    "scanStatus"
+  ).innerHTML =
+    '<span class="error">' +
+    'QR chưa có trong hệ thống' +
+    '</span>';
 
-    }
+  return;
+}
 
 
     /* =====================================================
