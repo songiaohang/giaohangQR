@@ -4,15 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 
-<title>Quan ly giao nhan</title>
+<title>Quản lý giao nhận</title>
 
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
 <style>
-*{
-  box-sizing:border-box;
-}
+*{box-sizing:border-box}
 
 body{
   margin:0;
@@ -22,15 +20,15 @@ body{
 }
 
 .wrap{
-  max-width:560px;
+  max-width:520px;
   margin:auto;
-  padding:12px;
+  padding:14px;
 }
 
 .card{
   background:#fff;
   border-radius:16px;
-  padding:16px;
+  padding:18px;
   box-shadow:0 2px 12px #0001;
   margin-bottom:12px;
 }
@@ -40,8 +38,7 @@ h2{
   text-align:center;
 }
 
-input,
-button{
+input,button{
   width:100%;
   height:48px;
   border-radius:10px;
@@ -55,7 +52,7 @@ button{
   background:#1976d2;
   color:#fff;
   font-weight:bold;
-  margin-top:9px;
+  margin-top:10px;
 }
 
 button.secondary{
@@ -74,33 +71,8 @@ button.danger{
   background:#c5221f;
 }
 
-button.gray{
-  background:#777;
-}
-
 .hidden{
   display:none !important;
-}
-
-.status{
-  text-align:center;
-  padding:9px;
-  font-weight:bold;
-}
-
-.ok{
-  color:#188038;
-}
-
-.err{
-  color:#c5221f;
-}
-
-.small{
-  font-size:13px;
-  color:#666;
-  text-align:center;
-  line-height:1.4;
 }
 
 #cameraBox{
@@ -127,134 +99,75 @@ button.gray{
   box-shadow:0 0 8px #00e676;
 }
 
-.badge{
-  display:inline-block;
-  padding:6px 10px;
-  border-radius:20px;
-  background:#e8f0fe;
-  color:#174ea6;
-  font-size:13px;
+.status{
+  text-align:center;
+  padding:10px;
   font-weight:bold;
 }
 
-.resultTop{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-  margin-bottom:12px;
+.ok{
+  color:#188038;
 }
 
-.infoBox{
-  background:#f5f6f7;
-  border-radius:10px;
-  padding:10px;
-  min-height:62px;
+.err{
+  color:#c5221f;
 }
 
-.infoLabel{
-  font-size:12px;
+.small{
+  font-size:13px;
+  color:#666;
+  text-align:center;
+  margin-top:8px;
+}
+
+.result{
+  line-height:1.6;
+}
+
+.label{
+  font-size:13px;
   color:#777;
-  margin-bottom:4px;
+  margin-top:8px;
 }
 
-.infoValue{
-  font-size:17px;
+.value{
+  font-size:18px;
   font-weight:bold;
   word-break:break-word;
 }
 
-.codeBox{
-  background:#eef4ff;
-  border-radius:10px;
-  padding:12px;
-  margin-bottom:10px;
-}
-
-.codeLabel{
-  font-size:12px;
-  color:#666;
-}
-
-.codeValue{
-  font-size:20px;
-  font-weight:bold;
-  word-break:break-all;
-}
-
-.actionGrid{
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  gap:8px;
-}
-
-.actionGrid button{
-  margin-top:0;
-}
-
-.bottomGrid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-  margin-top:8px;
-}
-
-.bottomGrid button{
-  margin-top:0;
-}
-
-.reportGrid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:8px;
-}
-
-.reportBox{
-  background:#f6f7f8;
-  border-radius:10px;
-  padding:10px;
-}
-
-.reportTitle{
-  font-weight:bold;
-  margin-bottom:7px;
-}
-
-.reportLine{
-  display:flex;
-  justify-content:space-between;
-  gap:8px;
-  padding:3px 0;
-  font-size:14px;
-}
-
-.reportLine b{
-  text-align:right;
-}
-
-.totalBox{
-  margin-top:8px;
-  padding:10px;
-  border-radius:10px;
+.badge{
+  display:inline-block;
+  padding:5px 9px;
+  border-radius:20px;
   background:#e8f0fe;
-  font-weight:bold;
+  color:#174ea6;
+  font-size:13px;
+}
+
+.row2{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+
+.row2 button{
+  margin-top:10px;
 }
 
 #ocrCanvas{
   display:none;
 }
 
-.money{
-  text-align:right;
+.report{
+  background:#f8f9fa;
+  border-radius:10px;
+  padding:12px;
+  line-height:1.7;
 }
 
-@media(max-width:420px){
-  .actionGrid{
-    grid-template-columns:1fr;
-  }
-
-  .resultTop{
-    grid-template-columns:1fr;
-  }
+.report b{
+  font-size:16px;
 }
 </style>
 </head>
@@ -263,9 +176,7 @@ button.gray{
 
 <div class="wrap">
 
-<!-- ===================================================== -->
-<!-- DANG NHAP -->
-<!-- ===================================================== -->
+<!-- ================= LOGIN ================= -->
 
 <div id="loginCard" class="card">
 
@@ -294,22 +205,13 @@ button.gray{
 </div>
 
 
-<!-- ===================================================== -->
-<!-- APP -->
-<!-- ===================================================== -->
+<!-- ================= APP ================= -->
 
 <div id="appCard" class="hidden">
 
-  <!-- NHAN VIEN -->
-
   <div class="card">
 
-    <div style="
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:8px;
-    ">
+    <div style="display:flex;justify-content:space-between;align-items:center">
 
       <b>
         NHÂN VIÊN:
@@ -329,33 +231,7 @@ button.gray{
   </div>
 
 
-  <!-- ================================================= -->
-  <!-- BAO CAO TRONG NGAY -->
-  <!-- ================================================= -->
-
-  <div class="card">
-
-    <h2 style="font-size:20px">
-      BÁO CÁO TRONG NGÀY
-    </h2>
-
-    <div id="baoCaoNgay">
-      Đang tải báo cáo...
-    </div>
-
-    <button
-      class="secondary"
-      onclick="taiBaoCao()"
-    >
-      CẬP NHẬT BÁO CÁO
-    </button>
-
-  </div>
-
-
-  <!-- ================================================= -->
-  <!-- CAMERA -->
-  <!-- ================================================= -->
+  <!-- ================= CAMERA ================= -->
 
   <div class="card">
 
@@ -376,198 +252,131 @@ button.gray{
 
     <canvas id="ocrCanvas"></canvas>
 
-    <div
-      id="scanStatus"
-      class="status"
-    >
+    <div id="scanStatus" class="status">
       Đang chuẩn bị camera...
     </div>
 
     <div class="small">
-      Ưu tiên QR. Nếu không có QR,
-      máy tự chuyển sang nhận diện ID đơn hàng.
+      Ưu tiên QR. Nếu không thấy QR, máy tự nhận diện ID đơn hàng.
     </div>
+
+    <button
+      class="secondary"
+      onclick="batDauQuet()"
+    >
+      QUÉT LẠI
+    </button>
 
   </div>
 
 
-  <!-- ================================================= -->
-  <!-- THONG TIN DON -->
-  <!-- ================================================= -->
+  <!-- ================= KẾT QUẢ ================= -->
 
-  <div
-    id="resultCard"
-    class="card hidden"
-  >
+  <div id="resultCard" class="card hidden">
 
-    <div style="
-      text-align:center;
-      margin-bottom:10px;
-    ">
+    <div style="text-align:center;margin-bottom:8px">
+
       <span
         id="methodBadge"
         class="badge"
       ></span>
+
     </div>
 
 
-    <!-- MA NHAN DANG -->
+    <div class="result">
 
-    <div class="codeBox">
-
-      <div class="codeLabel">
-        MÃ ĐÃ NHẬN DẠNG
+      <div class="label">
+        Mã nhận dạng
       </div>
 
       <div
         id="maNhanDang"
-        class="codeValue"
+        class="value"
+      ></div>
+
+
+      <div class="label">
+        ID đơn hàng
+      </div>
+
+      <div
+        id="maDon"
+        class="value"
+      ></div>
+
+
+      <div class="label">
+        Tên hàng
+      </div>
+
+      <div
+        id="tenHang"
+        class="value"
+      ></div>
+
+
+      <div class="label">
+        Số lượng
+      </div>
+
+      <div
+        id="soLuong"
+        class="value"
+      ></div>
+
+
+      <div class="label">
+        Tồn kho
+      </div>
+
+      <div
+        id="tonKho"
+        class="value"
+      ></div>
+
+
+      <div class="label">
+        Trạng thái
+      </div>
+
+      <div
+        id="trangThai"
+        class="value"
       ></div>
 
     </div>
 
 
-    <!-- THONG TIN -->
+    <!-- 3 NÚT CHÍNH -->
 
-    <div class="resultTop">
+    <button
+      class="success"
+      onclick="xuLyNhapHang()"
+    >
+      NHẬP HÀNG
+    </button>
 
-      <div class="infoBox">
+    <button
+      onclick="xuLyGiaoHang()"
+    >
+      GIAO HÀNG
+    </button>
 
-        <div class="infoLabel">
-          ID ĐƠN HÀNG
-        </div>
-
-        <div
-          id="maDon"
-          class="infoValue"
-        ></div>
-
-      </div>
-
-
-      <div class="infoBox">
-
-        <div class="infoLabel">
-          KHÁCH HÀNG
-        </div>
-
-        <div
-          id="tenKhach"
-          class="infoValue"
-        ></div>
-
-      </div>
+    <button
+      class="warn"
+      onclick="xuLyHoanHang()"
+    >
+      HOÀN HÀNG
+    </button>
 
 
-      <div class="infoBox">
+    <!-- TIẾP / THOÁT -->
 
-        <div class="infoLabel">
-          ĐỊA CHỈ
-        </div>
-
-        <div
-          id="diaChi"
-          class="infoValue"
-        ></div>
-
-      </div>
-
-
-      <div class="infoBox">
-
-        <div class="infoLabel">
-          TÊN HÀNG
-        </div>
-
-        <div
-          id="tenHang"
-          class="infoValue"
-        ></div>
-
-      </div>
-
-
-      <div class="infoBox">
-
-        <div class="infoLabel">
-          SỐ LƯỢNG
-        </div>
-
-        <div
-          id="soLuong"
-          class="infoValue"
-        ></div>
-
-      </div>
-
-
-      <div class="infoBox">
-
-        <div class="infoLabel">
-          TỒN KHO
-        </div>
-
-        <div
-          id="tonKho"
-          class="infoValue"
-        ></div>
-
-      </div>
-
-
-      <div class="infoBox">
-
-        <div class="infoLabel">
-          TRẠNG THÁI
-        </div>
-
-        <div
-          id="trangThai"
-          class="infoValue"
-        ></div>
-
-      </div>
-
-    </div>
-
-
-    <!-- ================================================= -->
-    <!-- 3 NUT -->
-    <!-- ================================================= -->
-
-    <div class="actionGrid">
+    <div class="row2">
 
       <button
-        class="success"
-        onclick="xuLyNhapHang()"
-      >
-        NHẬP HÀNG
-      </button>
-
-      <button
-        onclick="xuLyGiaoHang()"
-      >
-        GIAO HÀNG
-      </button>
-
-      <button
-        class="warn"
-        onclick="xuLyHoanHang()"
-      >
-        HOÀN HÀNG
-      </button>
-
-    </div>
-
-
-    <!-- ================================================= -->
-    <!-- TIEP / THOAT -->
-    <!-- ================================================= -->
-
-    <div class="bottomGrid">
-
-      <button
-        class="gray"
+        class="secondary"
         onclick="tiepTucQuet()"
       >
         TIẾP
@@ -584,6 +393,29 @@ button.gray{
 
   </div>
 
+
+  <!-- ================= BÁO CÁO ================= -->
+
+  <div class="card">
+
+    <h2>BÁO CÁO TRONG NGÀY</h2>
+
+    <div
+      id="baoCao"
+      class="report"
+    >
+      Đang tải báo cáo...
+    </div>
+
+    <button
+      class="secondary"
+      onclick="taiBaoCao()"
+    >
+      CẬP NHẬT BÁO CÁO
+    </button>
+
+  </div>
+
 </div>
 
 </div>
@@ -592,7 +424,7 @@ button.gray{
 <script>
 
 /* ==========================================================
-   API WEB APP CODE.GS
+   URL WEB APP CODE.GS
    ========================================================== */
 
 const API_URL =
@@ -600,7 +432,7 @@ const API_URL =
 
 
 /* ==========================================================
-   BIEN
+   BIẾN
    ========================================================== */
 
 let nv = "";
@@ -617,8 +449,6 @@ let noQrSince = 0;
 
 let lastCode = "";
 
-let lastMethod = "";
-
 let lastCodeTime = 0;
 
 let currentOrder = null;
@@ -629,7 +459,7 @@ let audioCtx = null;
 
 
 /* ==========================================================
-   DOM
+   CAMERA
    ========================================================== */
 
 const video =
@@ -649,7 +479,7 @@ canvas.getContext(
 
 
 /* ==========================================================
-   TRANG THAI
+   TRẠNG THÁI
    ========================================================== */
 
 function setStatus(msg, cls="") {
@@ -664,8 +494,6 @@ function setStatus(msg, cls="") {
 
 /* ==========================================================
    BEEP
-   QR = 1 TIENG
-   ID = 2 TIENG
    ========================================================== */
 
 function beep(count=1) {
@@ -682,14 +510,23 @@ function beep(count=1) {
 
     }
 
-    if (audioCtx.state === "suspended") {
+    if (
+      audioCtx.state ===
+      "suspended"
+    ) {
+
       audioCtx.resume();
+
     }
 
     const start =
       audioCtx.currentTime;
 
-    for(let i=0;i<count;i++){
+    for (
+      let i=0;
+      i<count;
+      i++
+    ) {
 
       const osc =
         audioCtx.createOscillator();
@@ -728,6 +565,7 @@ function beep(count=1) {
       osc.start(t);
 
       osc.stop(t + 0.12);
+
     }
 
   } catch(e) {
@@ -759,9 +597,10 @@ function apiGet(params) {
       redirect:"follow"
     }
   )
-  .then(r => {
 
-    if(!r.ok){
+  .then(function(r){
+
+    if (!r.ok) {
 
       throw new Error(
         "API HTTP " + r.status
@@ -772,17 +611,18 @@ function apiGet(params) {
     return r.text();
 
   })
-  .then(t => {
 
-    try{
+  .then(function(t){
+
+    try {
 
       return JSON.parse(t);
 
-    }catch(e){
+    } catch(e) {
 
       throw new Error(
         "API khong tra JSON: " +
-        t.slice(0,200)
+        t.substring(0,200)
       );
 
     }
@@ -793,7 +633,7 @@ function apiGet(params) {
 
 
 /* ==========================================================
-   DANG NHAP
+   ĐĂNG NHẬP
    ========================================================== */
 
 function dangNhap() {
@@ -810,15 +650,17 @@ function dangNhap() {
       .value;
 
   const box =
-    document.getElementById(
-      "loginMsg"
-    );
+    document
+      .getElementById("loginMsg");
 
 
-  if(!maNV || !matKhau){
+  if (
+    !maNV ||
+    !matKhau
+  ) {
 
     box.textContent =
-      "Vui long nhap ma nhan vien va mat khau";
+      "Vui lòng nhập mã nhân viên và mật khẩu";
 
     box.className =
       "status err";
@@ -829,7 +671,7 @@ function dangNhap() {
 
 
   box.textContent =
-    "Dang kiem tra...";
+    "Đang kiểm tra...";
 
   box.className =
     "status";
@@ -845,21 +687,19 @@ function dangNhap() {
 
   })
 
-  .then(r => {
+  .then(function(r){
 
-    if(!r.ok){
+    if (!r.ok) {
 
       throw new Error(
         r.msg ||
-        "Dang nhap that bai"
+        "Đăng nhập thất bại"
       );
 
     }
 
 
-    nv =
-      r.maNV ||
-      maNV;
+    nv = r.maNV;
 
 
     document
@@ -879,13 +719,15 @@ function dangNhap() {
       .remove("hidden");
 
 
-    taiBaoCao();
+    beep(1);
 
     batDauQuet();
 
+    taiBaoCao();
+
   })
 
-  .catch(e => {
+  .catch(function(e){
 
     box.textContent =
       e.message;
@@ -899,7 +741,7 @@ function dangNhap() {
 
 
 /* ==========================================================
-   DANG XUAT
+   ĐĂNG XUẤT
    ========================================================== */
 
 function dangXuat() {
@@ -922,19 +764,11 @@ function dangXuat() {
     .classList
     .remove("hidden");
 
-  document
-    .getElementById("maNV")
-    .value = "";
-
-  document
-    .getElementById("matKhau")
-    .value = "";
-
 }
 
 
 /* ==========================================================
-   BAT CAMERA
+   CAMERA BẮT ĐẦU
    ========================================================== */
 
 async function batDauQuet() {
@@ -945,28 +779,23 @@ async function batDauQuet() {
     .add("hidden");
 
 
-  currentOrder = null;
-
-  currentMethod = "";
-
   qrFound = false;
 
   ocrRunning = false;
 
   lastCode = "";
 
-  lastMethod = "";
-
   noQrSince =
     performance.now();
 
 
-  if(!stream){
+  if (!stream) {
 
-    try{
+    try {
 
       stream =
-        await navigator.mediaDevices
+        await navigator
+          .mediaDevices
           .getUserMedia({
 
             video:{
@@ -994,10 +823,11 @@ async function batDauQuet() {
 
       await video.play();
 
-    }catch(e){
+
+    } catch(e) {
 
       setStatus(
-        "Khong mo duoc camera: " +
+        "Không mở được camera: " +
         e.message,
         "err"
       );
@@ -1011,9 +841,9 @@ async function batDauQuet() {
 
   running = true;
 
+
   setStatus(
-    "Dang tim QR...",
-    ""
+    "Đang tìm QR..."
   );
 
 
@@ -1025,18 +855,23 @@ async function batDauQuet() {
 
 
 /* ==========================================================
-   DUNG CAMERA
+   DỪNG CAMERA
    ========================================================== */
 
 function dungCamera() {
 
   running = false;
 
-  if(stream){
+
+  if (stream) {
 
     stream
       .getTracks()
-      .forEach(t => t.stop());
+      .forEach(function(t){
+
+        t.stop();
+
+      });
 
     stream = null;
 
@@ -1046,18 +881,22 @@ function dungCamera() {
 
 
 /* ==========================================================
-   VONG QUET
+   VÒNG QUÉT
    ========================================================== */
 
 function vongQuet() {
 
-  if(!running) return;
+  if (!running) {
+
+    return;
+
+  }
 
 
-  if(
+  if (
     video.readyState >= 2 &&
     video.videoWidth > 0
-  ){
+  ) {
 
     const w =
       video.videoWidth;
@@ -1101,10 +940,10 @@ function vongQuet() {
       );
 
 
-    if(
+    if (
       code &&
       code.data
-    ){
+    ) {
 
       const value =
         String(
@@ -1112,7 +951,7 @@ function vongQuet() {
         ).trim();
 
 
-      if(value){
+      if (value) {
 
         qrFound = true;
 
@@ -1134,14 +973,13 @@ function vongQuet() {
   }
 
 
-  /* OCR ID */
-
-  if(
+  if (
     !qrFound &&
     !ocrRunning &&
     performance.now() -
-    noQrSince > 1600
-  ){
+      noQrSince >
+      1600
+  ) {
 
     nhanDangID();
 
@@ -1161,23 +999,26 @@ function vongQuet() {
 
 async function nhanDangID() {
 
-  if(
+  if (
     ocrRunning ||
     !running ||
     qrFound
-  ) return;
+  ) {
+
+    return;
+
+  }
 
 
   ocrRunning = true;
 
 
   setStatus(
-    "Khong thay QR -> dang nhan dien ID don hang...",
-    ""
+    "Không thấy QR → đang nhận diện ID đơn hàng..."
   );
 
 
-  try{
+  try {
 
     const w =
       video.videoWidth;
@@ -1186,16 +1027,13 @@ async function nhanDangID() {
       video.videoHeight;
 
 
-    const cropW = w;
-
     const cropH =
       Math.floor(
         h * 0.62
       );
 
 
-    canvas.width =
-      cropW;
+    canvas.width = w;
 
     canvas.height =
       cropH;
@@ -1209,14 +1047,15 @@ async function nhanDangID() {
       cropH,
       0,
       0,
-      cropW,
+      w,
       cropH
     );
 
 
     const worker =
-      await Tesseract
-        .createWorker("vie");
+      await Tesseract.createWorker(
+        "vie"
+      );
 
 
     const ret =
@@ -1233,10 +1072,12 @@ async function nhanDangID() {
 
 
     const id =
-      timIDTrongOCR(text);
+      timIDTrongOCR(
+        text
+      );
 
 
-    if(id){
+    if (id) {
 
       xuLyMa(
         id,
@@ -1249,28 +1090,27 @@ async function nhanDangID() {
 
 
     setStatus(
-      "Chua doc duoc ID -> dua phieu gan va ro hon...",
-      ""
+      "Chưa đọc được ID → đưa phiếu gần và rõ hơn..."
     );
 
 
-  }catch(e){
+  } catch(e) {
 
     setStatus(
-      "OCR loi: " +
+      "OCR lỗi: " +
       e.message,
       "err"
     );
 
-  }finally{
+  } finally {
 
     ocrRunning = false;
 
 
-    if(
+    if (
       running &&
       !qrFound
-    ){
+    ) {
 
       noQrSince =
         performance.now() +
@@ -1284,14 +1124,14 @@ async function nhanDangID() {
 
 
 /* ==========================================================
-   TIM ID TRONG OCR
+   TÌM ID TRONG KẾT QUẢ OCR
    ========================================================== */
 
 function timIDTrongOCR(text) {
 
   const s =
     String(text || "")
-      .replace(/[|]/g,"1")
+      .replace(/\|/g,"1")
       .replace(/[Oo]/g,"0")
       .replace(/[IiLl]/g,"1");
 
@@ -1300,17 +1140,20 @@ function timIDTrongOCR(text) {
     s.split(/\r?\n/);
 
 
-  for(
-    const line of lines
-  ){
+  for (
+    let i=0;
+    i<lines.length;
+    i++
+  ) {
 
-    if(
-      /id\s*don\s*hang|
-       id\s*đơn\s*hàng|
-       don\s*hang|
-       đơn\s*hàng/i
-      .test(line)
-    ){
+    const line =
+      lines[i];
+
+
+    if (
+      /id\s*don\s*hang|id\s*dơn\s*hang|don\s*hang/i
+        .test(line)
+    ) {
 
       const m =
         line.match(
@@ -1318,7 +1161,7 @@ function timIDTrongOCR(text) {
         );
 
 
-      if(m){
+      if (m) {
 
         return m[0];
 
@@ -1335,50 +1178,56 @@ function timIDTrongOCR(text) {
     );
 
 
-  return
+  if (
     all &&
     all.length
-      ? all[0]
-      : "";
+  ) {
+
+    return all[0];
+
+  }
+
+
+  return "";
 
 }
 
 
 /* ==========================================================
-   XU LY MA NHAN DANG
+   XỬ LÝ MÃ QR / ID
    ========================================================== */
 
 function xuLyMa(
   ma,
   phuongThuc
-){
+) {
 
   ma =
     String(ma || "")
       .trim();
 
 
-  if(!ma) return;
-
-
-  /* CHONG QUET LAP */
-
-  if(
-    ma === lastCode &&
-    phuongThuc === lastMethod &&
-    performance.now() -
-    lastCodeTime < 5000
-  ){
+  if (!ma) {
 
     return;
 
   }
 
 
-  lastCode = ma;
+  if (
+    ma === lastCode &&
+    performance.now() -
+      lastCodeTime <
+      5000
+  ) {
 
-  lastMethod =
-    phuongThuc;
+    return;
+
+  }
+
+
+  lastCode =
+    ma;
 
   lastCodeTime =
     performance.now();
@@ -1388,21 +1237,16 @@ function xuLyMa(
 
 
   setStatus(
-    "Dang kiem tra " +
+    "Đang kiểm tra " +
     (
       phuongThuc === "QR"
         ? "QR"
         : "ID"
     ) +
-    "...",
-    ""
+    ": " +
+    ma
   );
 
-
-  /*
-     QR -> tim cot A
-     OCR ID -> tim cot B
-  */
 
   apiGet({
 
@@ -1417,42 +1261,29 @@ function xuLyMa(
 
   })
 
-  .then(r => {
+  .then(function(r){
 
-    if(!r.ok){
+    if (!r.ok) {
 
       throw new Error(
         r.msg ||
-        "Khong tim thay don hang"
+        "Không tìm thấy đơn hàng"
       );
 
     }
 
 
-    currentOrder = r;
+    currentOrder =
+      r;
 
     currentMethod =
       phuongThuc;
 
 
-    /* BEEP CHI SAU KHI BACKEND XAC NHAN */
-
-    if(
+    beep(
       phuongThuc === "QR"
-    ){
-
-      beep(1);
-
-    }else{
-
-      beep(2);
-
-    }
-
-
-    luuAnhNhanDien(
-      ma,
-      phuongThuc
+        ? 1
+        : 2
     );
 
 
@@ -1462,9 +1293,16 @@ function xuLyMa(
       ma
     );
 
+
+    luuAnhNhanDien(
+      ma,
+      phuongThuc
+    );
+
+
   })
 
-  .catch(e => {
+  .catch(function(e){
 
     setStatus(
       e.message,
@@ -1479,13 +1317,11 @@ function xuLyMa(
 
 
     setTimeout(
-      () => {
+      function(){
 
-        if(stream){
+        if (stream) {
 
           running = true;
-
-          qrFound = false;
 
           noQrSince =
             performance.now();
@@ -1506,14 +1342,14 @@ function xuLyMa(
 
 
 /* ==========================================================
-   HIEN THI DON
+   HIỂN THỊ ĐƠN
    ========================================================== */
 
 function hienThiDon(
   r,
   method,
   ma
-){
+) {
 
   document
     .getElementById("methodBadge")
@@ -1526,36 +1362,13 @@ function hienThiDon(
   document
     .getElementById("maNhanDang")
     .textContent =
-      ma || "";
+      ma;
 
 
   document
     .getElementById("maDon")
     .textContent =
       r.maDon || "";
-
-
-  /*
-     Code.gs hiện tại chưa có
-     tenKhach / diaChi thì để trống.
-     Khi Code.gs bổ sung 2 trường này,
-     frontend tự hiển thị.
-  */
-
-  document
-    .getElementById("tenKhach")
-    .textContent =
-      r.tenKhach ||
-      r.khachHang ||
-      "";
-
-
-  document
-    .getElementById("diaChi")
-    .textContent =
-      r.diaChi ||
-      r.diaChiGiao ||
-      "";
 
 
   document
@@ -1567,13 +1380,13 @@ function hienThiDon(
   document
     .getElementById("soLuong")
     .textContent =
-      r.soLuong ?? 0;
+      r.soLuong || 0;
 
 
   document
     .getElementById("tonKho")
     .textContent =
-      r.tonKho ?? 0;
+      r.tonKho || 0;
 
 
   document
@@ -1589,7 +1402,7 @@ function hienThiDon(
 
 
   setStatus(
-    "Da nhan dang thanh cong",
+    "Đã nhận dạng thành công",
     "ok"
   );
 
@@ -1597,31 +1410,24 @@ function hienThiDon(
 
 
 /* ==========================================================
-   LUU ANH NHAN DIEN
+   LƯU ẢNH NHẬN DIỆN
    ========================================================== */
 
 async function luuAnhNhanDien(
   ma,
   phuongThuc
-){
+) {
 
-  try{
+  try {
 
-    if(
+    if (
       !video.videoWidth ||
       !video.videoHeight
-    ){
+    ) {
 
       return;
 
     }
-
-
-    const w =
-      video.videoWidth;
-
-    const h =
-      video.videoHeight;
 
 
     const c =
@@ -1630,9 +1436,11 @@ async function luuAnhNhanDien(
       );
 
 
-    c.width = w;
+    c.width =
+      video.videoWidth;
 
-    c.height = h;
+    c.height =
+      video.videoHeight;
 
 
     const cctx =
@@ -1643,46 +1451,65 @@ async function luuAnhNhanDien(
       video,
       0,
       0,
-      w,
-      h
+      c.width,
+      c.height
     );
 
 
-    const dataURL =
+    const anh =
       c.toDataURL(
         "image/jpeg",
-        0.75
+        0.55
       );
 
 
-    apiGet({
+    /*
+      Ảnh nhận diện được gửi bằng POST.
+      Không dùng GET vì ảnh base64 rất dài.
+    */
 
-      action:
-        "luuAnhNhanDien",
+    const response =
+      await fetch(
+        API_URL,
+        {
+          method:"POST",
+          headers:{
+            "Content-Type":
+              "text/plain;charset=utf-8"
+          },
+          body:JSON.stringify({
 
-      ma:ma,
+            action:
+              "luuAnhNhanDien",
 
-      phuongThuc:
-        phuongThuc,
+            ma:ma,
 
-      maNV:nv,
+            phuongThuc:
+              phuongThuc,
 
-      anh:dataURL
+            maNV:nv,
 
-    })
-    .catch(
-      e =>
-        console.log(
-          "Luu anh loi:",
-          e
-        )
+            anh:anh
+
+          })
+        }
+      );
+
+
+    const text =
+      await response.text();
+
+
+    console.log(
+      "Luu anh:",
+      text
     );
 
 
-  }catch(e){
+  } catch(e) {
 
     console.log(
-      "Luu anh loi:",
+      "Loi luu anh:",
       e
     );
 
@@ -1692,28 +1519,57 @@ async function luuAnhNhanDien(
 
 
 /* ==========================================================
-   NHAP HANG
+   NHẬP HÀNG
    ========================================================== */
 
-async function xuLyNhapHang() {
+function xuLyNhapHang() {
 
-  if(!currentOrder){
+  if (!currentOrder) {
 
     return;
 
   }
 
 
+  const ton =
+    Number(
+      currentOrder.tonKho || 0
+    );
+
+
+  if (ton > 0) {
+
+    const ok =
+      confirm(
+        "Mã này đã có hàng trong kho.\n\n" +
+        "Tồn hiện tại: " +
+        ton +
+        "\n\n" +
+        "Bạn có muốn nhập thêm không?"
+      );
+
+
+    if (!ok) {
+
+      tiepTucQuet();
+
+      return;
+
+    }
+
+  }
+
+
   let soLuong =
     prompt(
-      "Nhap so luong:",
+      "Nhập số lượng hàng:",
       "1"
     );
 
 
-  if(
+  if (
     soLuong === null
-  ){
+  ) {
 
     return;
 
@@ -1721,18 +1577,20 @@ async function xuLyNhapHang() {
 
 
   soLuong =
-    Number(soLuong);
+    Number(
+      soLuong
+    );
 
 
-  if(
+  if (
     !Number.isFinite(
       soLuong
     ) ||
     soLuong <= 0
-  ){
+  ) {
 
     alert(
-      "So luong khong hop le."
+      "Số lượng không hợp lệ."
     );
 
     return;
@@ -1749,82 +1607,62 @@ async function xuLyNhapHang() {
   const tienShip = 3200;
 
 
-  const xacNhan =
+  const ok =
     confirm(
-      "Xac nhan NHAP HANG\n\n" +
-      "Ma: " +
+      "Xác nhận NHẬP HÀNG\n\n" +
+      "Mã đơn: " +
       (
-        currentMethod === "QR"
-          ? currentOrder.maQR
-          : currentOrder.maDon
+        currentOrder.maDon ||
+        ""
       ) +
-      "\nSo luong: " +
+      "\nSố lượng: " +
       soLuong +
-      "\nTien hang: " +
-      dinhDangTien(
-        tienHang
-      ) +
-      "\nTien ship: " +
-      dinhDangTien(
-        tienShip
-      )
+      "\nTiền hàng: " +
+      tienHang.toLocaleString("vi-VN") +
+      "\nTiền ship: " +
+      tienShip.toLocaleString("vi-VN")
     );
 
 
-  if(!xacNhan){
+  if (!ok) {
 
     return;
 
   }
 
 
-  setStatus(
-    "Dang nhap hang...",
-    ""
-  );
+  apiGet({
 
+    action:"nhapHang",
 
-  try{
+    maQR:
+      currentOrder.maDon,
 
-    const r =
-      await apiGet({
+    maNV:nv,
 
-        action:"nhapHang",
+    soLuong:soLuong,
 
-        maQR:
-          currentMethod === "QR"
-            ? currentOrder.maQR
-            : currentOrder.maDon,
+    phuongThuc:
+      currentMethod,
 
-        phuongThuc:
-          currentMethod === "QR"
-            ? "QR"
-            : "ID",
+    tienShip:tienShip
 
-        maNV:nv,
+  })
 
-        soLuongNhap:
-          soLuong
+  .then(function(r){
 
-      });
-
-
-    if(!r.ok){
+    if (!r.ok) {
 
       throw new Error(
         r.msg ||
-        "Nhap hang that bai"
+        "Nhập hàng thất bại"
       );
 
     }
 
 
     alert(
-      "NHAP HANG THANH CONG\n\n" +
-      "Ton kho moi: " +
-      (
-        r.tonKho ?? ""
-      )
+      "Nhập hàng thành công."
     );
 
 
@@ -1832,30 +1670,26 @@ async function xuLyNhapHang() {
 
     tiepTucQuet();
 
+  })
 
-  }catch(e){
+  .catch(function(e){
 
     alert(
       e.message
     );
 
-    setStatus(
-      e.message,
-      "err"
-    );
-
-  }
+  });
 
 }
 
 
 /* ==========================================================
-   GIAO HANG
+   GIAO HÀNG
    ========================================================== */
 
-async function xuLyGiaoHang() {
+function xuLyGiaoHang() {
 
-  if(!currentOrder){
+  if (!currentOrder) {
 
     return;
 
@@ -1868,10 +1702,10 @@ async function xuLyGiaoHang() {
     );
 
 
-  if(ton <= 0){
+  if (ton <= 0) {
 
     alert(
-      "Ton kho hien tai bang 0."
+      "Đơn hàng hiện không có tồn kho để giao."
     );
 
     return;
@@ -1879,68 +1713,51 @@ async function xuLyGiaoHang() {
   }
 
 
-  const xacNhan =
+  const ok =
     confirm(
-      "Xac nhan GIAO HANG?\n\n" +
-      "Ma don: " +
-      currentOrder.maDon +
-      "\nSo luong giao: " +
-      ton +
-      "\n\n" +
-      "He thong se giao toan bo ton kho."
+      "Xác nhận GIAO HÀNG?\n\n" +
+      "Số lượng giao toàn bộ: " +
+      ton
     );
 
 
-  if(!xacNhan){
+  if (!ok) {
 
     return;
 
   }
 
 
-  setStatus(
-    "Dang giao hang...",
-    ""
-  );
+  apiGet({
 
+    action:"giaoHang",
 
-  try{
+    maQR:
+      currentOrder.maDon,
 
-    const r =
-      await apiGet({
+    maNV:nv,
 
-        action:"giaoHang",
+    soLuongGiao:ton,
 
-        maQR:
-          currentMethod === "QR"
-            ? currentOrder.maQR
-            : currentOrder.maDon,
+    phuongThuc:
+      currentMethod
 
-        phuongThuc:
-          currentMethod === "QR"
-            ? "QR"
-            : "ID",
+  })
 
-        maNV:nv,
+  .then(function(r){
 
-        soLuongGiao:
-          ton
-
-      });
-
-
-    if(!r.ok){
+    if (!r.ok) {
 
       throw new Error(
         r.msg ||
-        "Giao hang that bai"
+        "Giao hàng thất bại"
       );
 
     }
 
 
     alert(
-      "GIAO HANG THANH CONG"
+      "Giao hàng thành công."
     );
 
 
@@ -1948,97 +1765,76 @@ async function xuLyGiaoHang() {
 
     tiepTucQuet();
 
+  })
 
-  }catch(e){
+  .catch(function(e){
 
     alert(
       e.message
     );
 
-    setStatus(
-      e.message,
-      "err"
-    );
-
-  }
+  });
 
 }
 
 
 /* ==========================================================
-   HOAN HANG
+   HOÀN HÀNG
    ========================================================== */
 
-async function xuLyHoanHang() {
+function xuLyHoanHang() {
 
-  if(!currentOrder){
+  if (!currentOrder) {
 
     return;
 
   }
 
 
-  const xacNhan =
+  const ok =
     confirm(
-      "Xac nhan HOAN HANG 1 san pham?\n\n" +
-      "Ma don: " +
-      currentOrder.maDon
+      "Xác nhận HOÀN HÀNG?\n\n" +
+      "Số lượng hoàn: 1"
     );
 
 
-  if(!xacNhan){
+  if (!ok) {
 
     return;
 
   }
 
 
-  setStatus(
-    "Dang xu ly hoan hang...",
-    ""
-  );
+  apiGet({
 
+    action:"hoanHang",
 
-  try{
+    maQR:
+      currentOrder.maDon,
 
-    const r =
-      await apiGet({
+    maNV:nv,
 
-        action:"hoanHang",
+    soLuongHoan:1,
 
-        maQR:
-          currentMethod === "QR"
-            ? currentOrder.maQR
-            : currentOrder.maDon,
+    phuongThuc:
+      currentMethod
 
-        phuongThuc:
-          currentMethod === "QR"
-            ? "QR"
-            : "ID",
+  })
 
-        maNV:nv,
+  .then(function(r){
 
-        soLuongHoan:1
-
-      });
-
-
-    if(!r.ok){
+    if (!r.ok) {
 
       throw new Error(
         r.msg ||
-        "Hoan hang that bai"
+        "Hoàn hàng thất bại"
       );
 
     }
 
 
     alert(
-      "HOAN HANG THANH CONG\n\n" +
-      "Ton kho moi: " +
-      (
-        r.tonKho ?? ""
-      )
+      "Hoàn hàng thành công."
     );
 
 
@@ -2046,25 +1842,21 @@ async function xuLyHoanHang() {
 
     tiepTucQuet();
 
+  })
 
-  }catch(e){
+  .catch(function(e){
 
     alert(
       e.message
     );
 
-    setStatus(
-      e.message,
-      "err"
-    );
-
-  }
+  });
 
 }
 
 
 /* ==========================================================
-   TIEP TUC QUET
+   TIẾP TỤC QUÉT
    ========================================================== */
 
 function tiepTucQuet() {
@@ -2079,114 +1871,117 @@ function tiepTucQuet() {
     .add("hidden");
 
 
-  if(!stream){
+  lastCode = "";
+
+  lastCodeTime = 0;
+
+
+  if (stream) {
+
+    running = true;
+
+    qrFound = false;
+
+    ocrRunning = false;
+
+    noQrSince =
+      performance.now();
+
+
+    setStatus(
+      "Đang tìm QR..."
+    );
+
+
+    requestAnimationFrame(
+      vongQuet
+    );
+
+  } else {
 
     batDauQuet();
 
-    return;
-
   }
-
-
-  qrFound = false;
-
-  ocrRunning = false;
-
-  running = true;
-
-  noQrSince =
-    performance.now();
-
-
-  setStatus(
-    "Dang tim QR...",
-    ""
-  );
-
-
-  requestAnimationFrame(
-    vongQuet
-  );
 
 }
 
 
 /* ==========================================================
-   BAO CAO
+   BÁO CÁO
    ========================================================== */
 
 function taiBaoCao() {
 
-  const box =
-    document.getElementById(
-      "baoCaoNgay"
-    );
-
-
-  box.innerHTML =
-    "Dang tai bao cao...";
-
-
-  const ngay =
-    new Date();
-
-
-  const yyyy =
-    ngay.getFullYear();
-
-
-  const mm =
-    String(
-      ngay.getMonth()+1
-    ).padStart(2,"0");
-
-
-  const dd =
-    String(
-      ngay.getDate()
-    ).padStart(2,"0");
-
-
-  const ngayStr =
-    yyyy +
-    "-" +
-    mm +
-    "-" +
-    dd;
-
-
   apiGet({
 
     action:
-      "baoCaoTrongNgay",
-
-    ngay:
-      ngayStr
+      "baoCaoTrongNgay"
 
   })
 
-  .then(r => {
+  .then(function(r){
 
-    if(!r.ok){
+    if (!r.ok) {
 
       throw new Error(
         r.msg ||
-        "Khong tai duoc bao cao"
+        "Không lấy được báo cáo"
       );
 
     }
 
 
-    hienThiBaoCao(r);
+    const html =
+
+      "<b>Ngày: " +
+      (
+        r.ngay || ""
+      ) +
+      "</b><br><br>" +
+
+      "Số đơn nhập: " +
+      (
+        r.soDonNhap || 0
+      ) +
+      "<br>" +
+
+      "Số đơn giao: " +
+      (
+        r.soDonGiao || 0
+      ) +
+      "<br>" +
+
+      "Số đơn hoàn: " +
+      (
+        r.soDonHoan || 0
+      ) +
+      "<br>" +
+
+      "Tổng tiền hàng: " +
+      Number(
+        r.tongTienHang || 0
+      ).toLocaleString("vi-VN") +
+      "<br>" +
+
+      "Tổng tiền ship: " +
+      Number(
+        r.tongTienShip || 0
+      ).toLocaleString("vi-VN");
+
+
+    document
+      .getElementById("baoCao")
+      .innerHTML =
+        html;
 
   })
 
-  .catch(e => {
+  .catch(function(e){
 
-    box.innerHTML =
-      '<div class="status err">' +
-      e.message +
-      '</div>';
+    document
+      .getElementById("baoCao")
+      .textContent =
+        e.message;
 
   });
 
@@ -2194,164 +1989,7 @@ function taiBaoCao() {
 
 
 /* ==========================================================
-   HIEN BAO CAO
-   ========================================================== */
-
-function hienThiBaoCao(r) {
-
-  const slQR =
-    Number(
-      r.slDonQR ??
-      r.soDonQR ??
-      0
-    );
-
-
-  const tienQR =
-    Number(
-      r.tongTienQR ??
-      0
-    );
-
-
-  const shipQR =
-    Number(
-      r.tienShipQR ??
-      0
-    );
-
-
-  const slID =
-    Number(
-      r.slDonID ??
-      0
-    );
-
-
-  const tienID =
-    Number(
-      r.tongTienID ??
-      0
-    );
-
-
-  const shipID =
-    Number(
-      r.tienShipID ??
-      0
-    );
-
-
-  const shipTong =
-    Number(
-      r.tongShipIDQR ??
-      (
-        shipQR +
-        shipID
-      )
-    );
-
-
-  const slHoan =
-    Number(
-      r.slDonHoan ??
-      r.soDonHoan ??
-      0
-    );
-
-
-  document
-    .getElementById(
-      "baoCaoNgay"
-    )
-    .innerHTML = `
-
-      <div class="reportGrid">
-
-        <div class="reportBox">
-
-          <div class="reportTitle">
-            QR
-          </div>
-
-          <div class="reportLine">
-            <span>So don</span>
-            <b>${slQR}</b>
-          </div>
-
-          <div class="reportLine">
-            <span>Tien hang</span>
-            <b>${dinhDangTien(tienQR)}</b>
-          </div>
-
-          <div class="reportLine">
-            <span>Tien ship</span>
-            <b>${dinhDangTien(shipQR)}</b>
-          </div>
-
-        </div>
-
-
-        <div class="reportBox">
-
-          <div class="reportTitle">
-            ID
-          </div>
-
-          <div class="reportLine">
-            <span>So don</span>
-            <b>${slID}</b>
-          </div>
-
-          <div class="reportLine">
-            <span>Tien hang</span>
-            <b>${dinhDangTien(tienID)}</b>
-          </div>
-
-          <div class="reportLine">
-            <span>Tien ship</span>
-            <b>${dinhDangTien(shipID)}</b>
-          </div>
-
-        </div>
-
-      </div>
-
-
-      <div class="totalBox">
-
-        Tong tien ship QR + ID:
-        ${dinhDangTien(shipTong)}
-
-        <br><br>
-
-        So don hoan:
-        ${slHoan}
-
-      </div>
-
-    `;
-
-}
-
-
-/* ==========================================================
-   DINH DANG TIEN
-   ========================================================== */
-
-function dinhDangTien(n) {
-
-  return Number(
-    n || 0
-  ).toLocaleString(
-    "vi-VN"
-  ) + " đ";
-
-}
-
-
-/* ==========================================================
-   KHI DONG TRANG
+   KHI ĐÓNG TRANG
    ========================================================== */
 
 window.addEventListener(
