@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -94,7 +93,8 @@ button.warn{background:#e37400}
 // CHỈ CẦN SỬA DÒNG NÀY THÀNH URL WEB APP CỦA CODE.GS
 // Ví dụ: https://script.google.com/macros/s/xxxxxxxx/exec
 // ============================================================
-const API_URL = "https://script.google.com/macros/s/AKfycbymQ00Br51ycitNyjiJRfjjPfRMOcKI4G8u2ywX5IGr9WLJKzyk50nA5RqIiUEWfQMq6g/exec";
+const API_URL = "DAN_URL_WEB_APP_CODE_GS_VAO_DAY";
+
 let nv = "";
 let stream = null;
 let running = false;
@@ -297,228 +297,37 @@ function timIDTrongOCR(text) {
   return all && all.length ? all[0] : "";
 }
 
-let audioCtx = null;
 function xuLyMa(ma, phuongThuc) {
-
   ma = String(ma || "").trim();
+  if (!ma) return;
 
-  if (!ma) {
+  // Chống quét lặp cùng một mã.
+  if (ma === lastCode && performance.now() - lastCodeTime < 5000) return;
+  lastCode = ma;
+  lastCodeTime = performance.now();
 
-    return;
+  running = false;
+  setStatus("Đã nhận " + (phuongThuc === "QR" ? "QR" : "ID") + ": " + ma, "");
 
-  }
-
-
-  // Chong quet lap cung mot ma
-
-  if (
-    ma === lastCode &&
-    performance.now() - lastCodeTime < 5000
-  ) {
-
-    return;
-
-  }
-
-
-  lastCode =
-    ma;
-
-  lastCodeTime =
-    performance.now();
-
-
-  // Dung vong quet
-
-  running =
-    false;
-
-
-  setStatus(
-    "Da nhan " +
-    (phuongThuc === "QR"
-      ? "QR"
-      : "ID") +
-    ": " +
-    ma,
-    ""
-  );
-
-
-  // Goi Code.gs de tim don hang
-
-  apiGet({
-
-    action: "timDon",
-
-    maQR: ma
-
-  })
-
-
-  .then(r => {
-
-
-    // Khong tim thay don
-
-    if (!r.ok) {
-
-      throw new Error(
-        r.msg ||
-        "Khong tim thay don hang"
-      );
-
-    }
-
-
-    // =================================
-    // NEU LA QR
-    // KHI TIM THAY DON -> BIP 1 LAN
-    // =================================
-
-    if (phuongThuc === "QR") {
-
-      beep(1);
-
-    }
-
-
-    // =================================
-    // NEU LA OCR ID
-    // KHI TIM THAY DON -> BIP 2 LAN
-    // =================================
-
-    else {
-
-      beep(2);
-
-    }
-
-
-    // Hien thi thong tin don
-
-    hienThiDon(
-      r,
-      phuongThuc,
-      ma
-    );
-
-  })
-
-
-  .catch(e => {
-
-
-    setStatus(
-      e.message,
-      "err"
-    );
-
-
-    document
-      .getElementById("resultCard")
-      .classList
-      .add("hidden");
-
-
-    // Cho 1,2 giay roi quet lai
-
-    setTimeout(() => {
-
-
-      if (stream) {
-
-        running =
-          true;
-
-        noQrSince =
-          performance.now();
-
-        requestAnimationFrame(
-          vongQuet
-        );
-
-      }
-
-
-    }, 1200);
-
-  });
-
+  // QR có thể chứa chuỗi khác mã đơn. Code.gs timDon hiện tìm theo MA_QR.
+  apiGet({action:"timDon", maQR:ma})
+    .then(r => {
+      if (!r.ok) throw new Error(r.msg || "Không tìm thấy đơn hàng");
+      hienThiDon(r, phuongThuc, ma);
+    })
+    .catch(e => {
+      setStatus(e.message, "err");
+      document.getElementById("resultCard").classList.add("hidden");
+      setTimeout(() => {
+        if (stream) {
+          running = true;
+          noQrSince = performance.now();
+          requestAnimationFrame(vongQuet);
+        }
+      }, 1200);
+    });
 }
-function beep(count = 1) {
 
-  try {
-
-    if (!audioCtx) {
-
-      audioCtx =
-        new (window.AudioContext ||
-             window.webkitAudioContext)();
-
-    }
-
-    if (audioCtx.state === "suspended") {
-
-      audioCtx.resume();
-
-    }
-
-    const start =
-      audioCtx.currentTime;
-
-    for (let i = 0; i < count; i++) {
-
-      const osc =
-        audioCtx.createOscillator();
-
-      const gain =
-        audioCtx.createGain();
-
-      osc.type = "sine";
-
-      osc.frequency.value = 900;
-
-      const t =
-        start + i * 0.18;
-
-      gain.gain.setValueAtTime(
-        0.0001,
-        t
-      );
-
-      gain.gain.exponentialRampToValueAtTime(
-        0.25,
-        t + 0.01
-      );
-
-      gain.gain.exponentialRampToValueAtTime(
-        0.0001,
-        t + 0.11
-      );
-
-      osc.connect(gain);
-
-      gain.connect(
-        audioCtx.destination
-      );
-
-      osc.start(t);
-
-      osc.stop(
-        t + 0.12
-      );
-    }
-
-  } catch (e) {
-
-    console.log(
-      "Khong phat duoc am thanh:",
-      e
-    );
-
-  }
-}
 function hienThiDon(r, method, ma) {
   document.getElementById("methodBadge").textContent =
     method === "QR" ? "NHẬN DẠNG BẰNG QR" : "NHẬN DẠNG BẰNG ID";
