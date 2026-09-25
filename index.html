@@ -182,6 +182,27 @@ button:hover {
   display: none;
 }
 
+#manualIdBox {
+  border: 2px solid #6a1b9a;
+  background: #faf5ff;
+}
+
+.manual-id-title {
+  text-align: center;
+  color: #6a1b9a;
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.btn-manual-id {
+  background: #6a1b9a;
+}
+
+.btn-manual-huy {
+  background: #777;
+}
+
 /* ================================
    TAO DON MOI
 ================================ */
@@ -266,6 +287,44 @@ button:hover {
       <div id="scanStatus" class="status">
         Đang chuẩn bị camera...
       </div>
+
+    </div>
+
+    <!-- ================= NHẬP ID BẰNG TAY ================= -->
+    <div id="manualIdBox" class="card hidden">
+
+      <div class="manual-id-title">
+        NHẬP ID BẰNG TAY
+      </div>
+
+      <div class="small">
+        Camera không nhận diện được ID sau 5 giây.
+        Bạn có thể nhập mã ID trực tiếp.
+      </div>
+
+      <input
+        type="text"
+        id="manualIdInput"
+        placeholder="Nhập mã ID"
+        autocomplete="off"
+        autocapitalize="characters"
+      >
+
+      <button
+        class="btn-manual-id"
+        onclick="xuLyIDBangTay()"
+      >
+        TÌM ĐƠN ID
+      </button>
+
+      <button
+        class="btn-manual-huy"
+        onclick="dongNhapIDBangTay()"
+      >
+        ĐÓNG
+      </button>
+
+      <div id="manualIdStatus" class="status"></div>
 
     </div>
 
@@ -591,6 +650,8 @@ let thoiGianMaCuoi = 0;
 
 let audioCtx = null;
 
+let idManualTimer = null;
+
 
 /* =========================================================
    ÂM THANH
@@ -805,6 +866,121 @@ async function dangNhap() {
 
 
 /* =========================================================
+   NHẬP ID BẰNG TAY
+========================================================= */
+
+function xoaTimerNhapID() {
+
+  if (idManualTimer) {
+    clearTimeout(idManualTimer);
+    idManualTimer = null;
+  }
+
+}
+
+
+function hienThiNhapIDBangTay() {
+
+  const box =
+    document.getElementById("manualIdBox");
+
+  const input =
+    document.getElementById("manualIdInput");
+
+  const status =
+    document.getElementById("manualIdStatus");
+
+  if (!box) {
+    return;
+  }
+
+  box.classList.remove("hidden");
+
+  if (status) {
+    status.innerHTML =
+      '<span class="error">' +
+      'Không nhận diện được ID sau 5 giây. Vui lòng nhập ID bằng tay.' +
+      '</span>';
+  }
+
+  if (input) {
+    input.value = "";
+    input.focus();
+  }
+
+}
+
+
+function anNhapIDBangTay() {
+
+  const box =
+    document.getElementById("manualIdBox");
+
+  const status =
+    document.getElementById("manualIdStatus");
+
+  if (box) {
+    box.classList.add("hidden");
+  }
+
+  if (status) {
+    status.innerHTML = "";
+  }
+
+}
+
+
+async function xuLyIDBangTay() {
+
+  const input =
+    document.getElementById("manualIdInput");
+
+  const status =
+    document.getElementById("manualIdStatus");
+
+  const maID =
+    input ? input.value.trim().toUpperCase() : "";
+
+  if (!maID) {
+
+    if (status) {
+      status.innerHTML =
+        '<span class="error">' +
+        'Vui lòng nhập mã ID.' +
+        '</span>';
+    }
+
+    if (input) {
+      input.focus();
+    }
+
+    return;
+  }
+
+  xoaTimerNhapID();
+  anNhapIDBangTay();
+
+  // Cho xuLyMa() xử lý giống hệt ID đọc bằng OCR.
+  running = true;
+
+  await xuLyMa(maID, "ID");
+
+}
+
+
+function dongNhapIDBangTay() {
+
+  anNhapIDBangTay();
+
+  // Nếu người dùng đóng ô nhập tay thì tiếp tục quét.
+  if (!running) {
+    batDauQuet();
+  }
+
+}
+
+
+/* =========================================================
    CAMERA
 ========================================================= */
 
@@ -817,6 +993,9 @@ async function batDauQuet() {
 
 
   running = false;
+
+  xoaTimerNhapID();
+  anNhapIDBangTay();
 
 
   if (stream) {
@@ -868,6 +1047,23 @@ async function batDauQuet() {
 
     requestAnimationFrame(
       vongQuet
+    );
+
+    // Sau 5 giây không đọc được QR/ID thì hiện ô nhập ID bằng tay.
+    xoaTimerNhapID();
+
+    idManualTimer = setTimeout(
+      function() {
+
+        if (
+          running &&
+          !currentOrder
+        ) {
+          hienThiNhapIDBangTay();
+        }
+
+      },
+      5000
     );
 
   } catch (e) {
@@ -1169,6 +1365,9 @@ async function xuLyMa(
 
   running = false;
 
+  xoaTimerNhapID();
+  anNhapIDBangTay();
+
 
   document.getElementById(
     "scanStatus"
@@ -1305,13 +1504,6 @@ console.log("KET QUA TIM DON:", r);
 
 
     hienThiDon();
-
-
-    if (currentImage) {
-
-      luuAnhNhanDien();
-
-    }
 
   } catch (e) {
 
@@ -1909,6 +2101,8 @@ async function nhapHang() {
 
     beep(1);
 
+    await luuAnhNhanDien("NHAP_HANG");
+
 
     await taiBaoCao();
 
@@ -2039,6 +2233,8 @@ async function giaoHang() {
 
     beep(1);
 
+    await luuAnhNhanDien("GIAO_HANG");
+
 
     await taiBaoCao();
 
@@ -2152,6 +2348,8 @@ async function hoanHang() {
 
     beep(1);
 
+    await luuAnhNhanDien("HOAN_HANG");
+
 
     await taiBaoCao();
 
@@ -2196,11 +2394,12 @@ function hienThiAction(
    LƯU ẢNH
 ========================================================= */
 
-async function luuAnhNhanDien() {
+async function luuAnhNhanDien(hanhDong) {
 
   if (
     !currentImage ||
-    !currentOrder
+    !currentOrder ||
+    !hanhDong
   ) {
     return;
   }
@@ -2234,26 +2433,59 @@ async function luuAnhNhanDien() {
         ).value.trim(),
 
       anh:
-        currentImage
+        currentImage,
+
+      hanhDong:
+        hanhDong
 
     };
 
 
-    await fetch(
-      API_URL,
-      {
-        method: "POST",
+    const response =
+      await fetch(
+        API_URL,
+        {
+          method: "POST",
 
-        headers: {
-          "Content-Type":
-            "text/plain;charset=utf-8"
-        },
+          headers: {
+            "Content-Type":
+              "text/plain;charset=utf-8"
+          },
 
-        body:
-          JSON.stringify(
-            payload
-          )
-      }
+          body:
+            JSON.stringify(
+              payload
+            )
+        }
+      );
+
+
+    const text =
+      await response.text();
+
+    let r = null;
+
+    try {
+      r = JSON.parse(text);
+    } catch (e) {
+      console.log(
+        "Luu anh tra ve khong phai JSON:",
+        text
+      );
+      return;
+    }
+
+    if (!r.ok) {
+      console.log(
+        "Luu anh that bai:",
+        r.msg || r
+      );
+      return;
+    }
+
+    console.log(
+      "Luu anh thanh cong:",
+      r
     );
 
   } catch (e) {
@@ -2279,6 +2511,9 @@ async function tiepTucQuet() {
   currentMethod = "";
 
   currentImage = null;
+
+  xoaTimerNhapID();
+  anNhapIDBangTay();
 
 
   document.getElementById(
@@ -2342,6 +2577,9 @@ function thoat() {
   currentMethod = "";
 
   currentImage = null;
+
+  xoaTimerNhapID();
+  anNhapIDBangTay();
 
 
   document.getElementById(
@@ -2552,6 +2790,27 @@ window.addEventListener(
     document.getElementById(
       "maNV"
     ).focus();
+
+    const manualInput =
+      document.getElementById(
+        "manualIdInput"
+      );
+
+    if (manualInput) {
+
+      manualInput.addEventListener(
+        "keydown",
+        function(e) {
+
+          if (e.key === "Enter") {
+            e.preventDefault();
+            xuLyIDBangTay();
+          }
+
+        }
+      );
+
+    }
 
   }
 );
