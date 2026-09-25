@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Test luu anh</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  max-width: 600px;
+  margin: auto;
+}
+
+button {
+  width: 100%;
+  padding: 14px;
+  margin-top: 15px;
+  font-size: 18px;
+}
+
+input, select {
+  width: 100%;
+  padding: 10px;
+  margin-top: 8px;
+  box-sizing: border-box;
+}
+
+img {
+  max-width: 100%;
+  margin-top: 15px;
+}
+
+#ketqua {
+  margin-top: 20px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+</style>
+</head>
+
+<body>
+
+<h2>TEST LUU ANH</h2>
+
+<label>Chọn ảnh:</label>
+<input
+  type="file"
+  id="fileAnh"
+  accept="image/*"
+>
+
+<label>Mã QR:</label>
+<input
+  type="text"
+  id="maQR"
+  value="TESTQR001"
+>
+
+<label>Mã nhân viên:</label>
+<input
+  type="text"
+  id="maNV"
+  value="NV01"
+>
+
+<label>Phương thức:</label>
+<select id="phuongThuc">
+  <option value="QR">QR</option>
+  <option value="ID">ID</option>
+</select>
+
+<label>Hành động:</label>
+<select id="hanhDong">
+  <option value="GIAO_HANG">GIAO_HANG</option>
+  <option value="NHAP_HANG">NHAP_HANG</option>
+  <option value="HOAN_HANG">HOAN_HANG</option>
+</select>
+
+<button onclick="guiAnh()">
+  GỬI ẢNH
+</button>
+
+<img id="xemAnh">
+
+<div id="ketqua"></div>
+
+<script>
+
+const API_URL =
+"https://script.google.com/macros/s/AKfycbx5pDoMfZoNmKdzQYcudMLEqUl-3oiDWd7QjHlOCLodEz0gMgStQNGtJYtCjX9U8GKkaQ/exec";
+
+
+document
+.getElementById("fileAnh")
+.addEventListener("change", function() {
+
+  const file = this.files[0];
+
+  if (!file) return;
+
+  const url =
+    URL.createObjectURL(file);
+
+  document
+    .getElementById("xemAnh")
+    .src = url;
+
+});
+
+
+function docAnhBase64(file) {
+
+  return new Promise(function(resolve, reject) {
+
+    const reader =
+      new FileReader();
+
+    reader.onload = function() {
+
+      resolve(reader.result);
+
+    };
+
+    reader.onerror = function() {
+
+      reject(
+        new Error("Khong doc duoc anh")
+      );
+
+    };
+
+    reader.readAsDataURL(file);
+
+  });
+
+}
+
+
+async function guiAnh() {
+
+  const ketqua =
+    document.getElementById("ketqua");
+
+  const file =
+    document.getElementById("fileAnh").files[0];
+
+  if (!file) {
+
+    ketqua.textContent =
+      "CHUA CHON ANH";
+
+    return;
+
+  }
+
+
+  ketqua.textContent =
+    "Dang gui anh...";
+
+
+  try {
+
+    const anh =
+      await docAnhBase64(file);
+
+
+    const data = {
+
+      action: "luuAnhNhanDien",
+
+      maQR:
+        document.getElementById("maQR").value,
+
+      phuongThuc:
+        document.getElementById("phuongThuc").value,
+
+      maNV:
+        document.getElementById("maNV").value,
+
+      hanhDong:
+        document.getElementById("hanhDong").value,
+
+      anh: anh
+
+    };
+
+
+    const response =
+      await fetch(
+        API_URL,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "text/plain;charset=utf-8"
+          },
+
+          body:
+            JSON.stringify(data)
+        }
+      );
+
+
+    const text =
+      await response.text();
+
+
+    ketqua.textContent =
+      text;
+
+
+  }
+  catch (err) {
+
+    ketqua.textContent =
+      "LOI: " +
+      err.message;
+
+  }
+
+}
+
+</script>
+
+</body>
+</html>
