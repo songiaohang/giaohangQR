@@ -1,0 +1,2219 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>QUẢN LÝ GIAO NHẬN - SIMPLE</title>
+
+<!-- Thư viện quét QR -->
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#f3f4f6;
+  color:#111827;
+}
+button,input{font:inherit}
+button{
+  border:0;
+  border-radius:12px;
+  padding:14px 16px;
+  font-weight:700;
+  cursor:pointer;
+}
+button:disabled{opacity:.55;cursor:not-allowed}
+.app{
+  width:100%;
+  max-width:620px;
+  margin:auto;
+  min-height:100vh;
+  background:#fff;
+}
+header{
+  background:#111827;
+  color:#fff;
+  padding:16px;
+  text-align:center;
+  position:sticky;
+  top:0;
+  z-index:20;
+}
+header h1{font-size:21px;margin:0 0 5px}
+header small{opacity:.8}
+main{padding:14px}
+.screen{display:none}
+.screen.active{display:block}
+.card{
+  background:#fff;
+  border:1px solid #e5e7eb;
+  border-radius:16px;
+  padding:15px;
+  margin-bottom:14px;
+  box-shadow:0 2px 10px rgba(0,0,0,.05);
+}
+.title{
+  font-size:18px;
+  font-weight:800;
+  margin:0 0 12px;
+}
+label{
+  display:block;
+  font-weight:700;
+  margin:11px 0 6px;
+}
+input{
+  width:100%;
+  border:1px solid #d1d5db;
+  border-radius:11px;
+  padding:13px;
+  background:#fff;
+}
+.row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:12px;
+}
+.actions.one{grid-template-columns:1fr}
+.btn-main{background:#2563eb;color:#fff}
+.btn-green{background:#16a34a;color:#fff}
+.btn-orange{background:#f59e0b;color:#111}
+.btn-red{background:#dc2626;color:#fff}
+.btn-gray{background:#e5e7eb;color:#111827}
+.btn-dark{background:#111827;color:#fff}
+.btn-purple{background:#7c3aed;color:#fff}
+.status{
+  padding:11px 12px;
+  border-radius:11px;
+  margin-bottom:12px;
+  background:#eff6ff;
+  color:#1d4ed8;
+  font-weight:700;
+}
+.status.ok{background:#ecfdf5;color:#047857}
+.status.warn{background:#fffbeb;color:#b45309}
+.status.error{background:#fef2f2;color:#b91c1c}
+.hidden{display:none!important}
+#reader{
+  width:100%;
+  overflow:hidden;
+  border-radius:14px;
+  background:#111;
+}
+.result-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.result-item{
+  background:#f9fafb;
+  border-radius:10px;
+  padding:10px;
+}
+.result-item span{
+  display:block;
+  font-size:12px;
+  color:#6b7280;
+  margin-bottom:4px;
+}
+.result-item b{word-break:break-word}
+.big-number{
+  font-size:28px;
+  font-weight:900;
+}
+.report-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:9px;
+}
+.report-box{
+  padding:12px;
+  background:#f9fafb;
+  border-radius:12px;
+}
+.report-box small{display:block;color:#6b7280}
+.report-box strong{font-size:20px}
+#toast{
+  position:fixed;
+  left:50%;
+  bottom:18px;
+  transform:translateX(-50%);
+  z-index:100;
+  width:calc(100% - 30px);
+  max-width:580px;
+  padding:14px;
+  border-radius:12px;
+  color:#fff;
+  background:#111827;
+  display:none;
+  text-align:center;
+  font-weight:700;
+}
+#loading{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.45);
+  z-index:90;
+  display:none;
+  align-items:center;
+  justify-content:center;
+}
+#loading .box{
+  background:#fff;
+  border-radius:15px;
+  padding:20px 25px;
+  font-weight:800;
+}
+.note{
+  font-size:13px;
+  color:#6b7280;
+  line-height:1.5;
+}
+.manual-id-box{
+  background:#fff7ed;
+  border:1px solid #fed7aa;
+}
+.duplicate-box{
+  background:#fef2f2;
+  border:2px solid #ef4444;
+}
+@media(max-width:420px){
+  .row,.actions,.result-grid,.report-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<header>
+  <h1>QUẢN LÝ GIAO NHẬN</h1>
+  <small id="headerUser">Chưa đăng nhập</small>
+</header>
+
+<main>
+
+<!-- ================= LOGIN ================= -->
+<section id="loginScreen" class="screen active">
+  <div class="card">
+    <div class="title">ĐĂNG NHẬP</div>
+
+    <label>Mã nhân viên</label>
+    <input id="loginMaNV" placeholder="Nhập mã nhân viên" autocomplete="username">
+
+    <label>Mật khẩu</label>
+    <input id="loginMatKhau" type="password" placeholder="Nhập mật khẩu" autocomplete="current-password">
+
+    <div class="actions one">
+      <button class="btn-main" onclick="login()">ĐĂNG NHẬP</button>
+    </div>
+
+    <p class="note">
+      Sau khi đăng nhập, máy sẽ mở màn hình quét QR.
+    </p>
+  </div>
+</section>
+
+<!-- ================= HOME ================= -->
+<section id="homeScreen" class="screen">
+
+  <div id="homeStatus" class="status ok">
+    Đã đăng nhập. Sẵn sàng quét QR.
+  </div>
+
+  <div class="card">
+    <div class="title">CHỌN THAO TÁC</div>
+
+    <div class="actions one">
+      <button class="btn-main" onclick="startQRFlow()">
+        📷 QUÉT QR
+      </button>
+
+      <button class="btn-purple" onclick="openReport()">
+        📊 BÁO CÁO CUỐI NGÀY
+      </button>
+
+      <button class="btn-gray" onclick="logout()">
+        THOÁT
+      </button>
+    </div>
+  </div>
+
+</section>
+
+<!-- ================= QR SCANNER ================= -->
+<section id="scanScreen" class="screen">
+
+  <div id="scanStatus" class="status">
+    Đưa mã QR vào khung camera.
+  </div>
+
+  <div class="card">
+    <div class="title">QUÉT QR</div>
+    <div id="reader"></div>
+
+    <div class="actions">
+      <button class="btn-gray" onclick="stopScannerAndHome()">QUAY LẠI</button>
+      <button class="btn-orange" onclick="manualIdTimeoutChoice()">TÌM ID</button>
+    </div>
+
+    <p class="note">
+      Nếu camera không nhận diện được ID sau thời gian chờ, hệ thống sẽ hỏi có muốn nhập ID bằng tay hay không.
+    </p>
+  </div>
+
+</section>
+
+<!-- ================= MANUAL ID ================= -->
+<section id="manualIdScreen" class="screen">
+
+  <div class="card manual-id-box">
+    <div class="title">NHẬP ID BẰNG TAY</div>
+
+    <p id="manualIdMessage">
+      Camera không nhận diện được ID. Bạn có muốn nhập ID bằng tay không?
+    </p>
+
+    <label>Mã ID</label>
+    <input id="manualIdInput" placeholder="Nhập mã ID">
+
+    <div class="actions">
+      <button class="btn-green" onclick="findManualId()">YES - TÌM ID</button>
+      <button class="btn-gray" onclick="backToScanner()">NO - QUÉT QR</button>
+    </div>
+  </div>
+
+</section>
+
+<!-- ================= CREATE ORDER ================= -->
+<section id="createScreen" class="screen">
+
+  <div id="createStatus" class="status warn">
+    Tạo đơn mới.
+  </div>
+
+  <div class="card">
+    <div class="title" id="createTitle">TẠO ĐƠN MỚI</div>
+
+    <label>Mã QR</label>
+    <input id="fMaQR" readonly>
+
+    <label>Mã đơn / ID</label>
+    <input id="fMaDon" placeholder="Để trống nếu không cần nhập">
+
+    <label>Tên hàng</label>
+    <input id="fTenHang" value="SPX">
+
+    <label>Số lượng</label>
+    <input id="fSoLuong" type="number" min="1" step="1" value="1">
+
+    <label>Tiền hàng</label>
+    <input id="fTienHang" type="number" min="0" step="1" placeholder="Có thể để trống">
+
+    <label>Tiền ship</label>
+    <input id="fTienShip" type="number" min="0" step="1" placeholder="Có thể để trống">
+
+    <div class="note" id="shipDefaultNote">
+      QR: mặc định 3.200đ · ID: mặc định 20.000đ
+    </div>
+
+    <div class="actions">
+      <button class="btn-green" onclick="createOrder()">TẠO ĐƠN</button>
+      <button class="btn-gray" onclick="startQRFlow()">HỦY</button>
+    </div>
+  </div>
+
+</section>
+
+<!-- ================= ORDER RESULT ================= -->
+<section id="orderScreen" class="screen">
+
+  <div id="orderStatus" class="status ok">
+    Đã tìm thấy đơn.
+  </div>
+
+  <div class="card">
+    <div class="title">THÔNG TIN ĐƠN</div>
+
+    <div class="result-grid">
+      <div class="result-item"><span>Phương thức</span><b id="rPhuongThuc">-</b></div>
+      <div class="result-item"><span>Mã QR</span><b id="rMaQR">-</b></div>
+      <div class="result-item"><span>Mã đơn</span><b id="rMaDon">-</b></div>
+      <div class="result-item"><span>Tên hàng</span><b id="rTenHang">-</b></div>
+      <div class="result-item"><span>Số lượng</span><b id="rSoLuong">-</b></div>
+      <div class="result-item"><span>Tồn kho</span><b id="rTonKho">-</b></div>
+      <div class="result-item"><span>Trạng thái</span><b id="rTrangThai">-</b></div>
+      <div class="result-item"><span>Tiền hàng</span><b id="rTienHang">-</b></div>
+      <div class="result-item"><span>Tiền ship</span><b id="rTienShip">-</b></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="title">CHỤP ẢNH & LƯU</div>
+
+    <input
+      id="photoInput"
+      type="file"
+      accept="image/*"
+      capture="environment"
+      onchange="photoSelected(this)"
+    >
+
+    <p id="photoStatus" class="note">
+      QR và ID đều có thể chụp ảnh. Ảnh sẽ được lưu vào Google Drive,
+      DON_HANG và LICH_SU của đúng đơn/giao dịch.
+    </p>
+
+    <div class="actions one">
+      <button class="btn-dark" onclick="takePhoto()">
+        📷 CHỤP ẢNH & LƯU
+      </button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="title">XỬ LÝ</div>
+
+    <label>Số lượng thao tác</label>
+    <input id="actionQty" type="number" min="1" step="1" value="1">
+
+    <div class="actions">
+      <button class="btn-green" onclick="doNhap()">NHẬP</button>
+      <button class="btn-main" onclick="doGiao()">GIAO</button>
+    </div>
+
+    <div class="actions">
+      <button class="btn-orange" onclick="doHoan()">HOÀN</button>
+      <button class="btn-gray" onclick="startQRFlow()">QUÉT TIẾP</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <button class="btn-purple" style="width:100%" onclick="openReport()">
+      📊 BÁO CÁO CUỐI NGÀY
+    </button>
+  </div>
+
+</section>
+
+<!-- ================= REPORT ================= -->
+<section id="reportScreen" class="screen">
+
+  <div class="card">
+    <div class="title">BÁO CÁO CUỐI NGÀY</div>
+
+    <label>Ngày</label>
+    <input id="reportDate" type="date">
+
+    <div class="actions">
+      <button class="btn-purple" onclick="loadReport()">XEM BÁO CÁO</button>
+      <button class="btn-gray" onclick="goHome()">QUAY LẠI</button>
+    </div>
+  </div>
+
+  <div id="reportCard" class="card hidden">
+
+    <div id="reportDateText" class="status ok"></div>
+
+    <div class="report-grid">
+      <div class="report-box">
+        <small>Đơn QR</small>
+        <strong id="bcDonQR">0</strong>
+      </div>
+
+      <div class="report-box">
+        <small>Đơn ID</small>
+        <strong id="bcDonID">0</strong>
+      </div>
+
+      <div class="report-box">
+        <small>Tổng đơn</small>
+        <strong id="bcTongDon">0</strong>
+      </div>
+
+      <div class="report-box">
+        <small>Tổng số lượng</small>
+        <strong id="bcTongSL">0</strong>
+      </div>
+
+      <div class="report-box">
+        <small>Tiền hàng QR</small>
+        <strong id="bcTienHangQR">0</strong>
+      </div>
+
+      <div class="report-box">
+        <small>Tiền hàng ID</small>
+        <strong id="bcTienHangID">0</strong>
+      </div>
+
+      <div class="report-box">
+        <small>Tiền ship QR</small>
+        <strong id="bcShipQR">0</strong>
+      </div>
+
+      <div class="report-box">
+        <small>Tiền ship ID</small>
+        <strong id="bcShipID">0</strong>
+      </div>
+
+      <div class="report-box">
+        <small>Tổng tiền</small>
+        <strong id="bcTongTien">0</strong>
+      </div>
+
+      <div class="report-box">
+        <small>Đơn hoàn</small>
+        <strong id="bcDonHoan">0</strong>
+      </div>
+
+      <div class="report-box">
+        <small>SL hoàn</small>
+        <strong id="bcSLHoan">0</strong>
+      </div>
+    </div>
+
+    <div class="actions one" style="margin-top:14px">
+      <button class="btn-green" onclick="saveReport()">GHI BÁO CÁO VÀO SHEET</button>
+    </div>
+
+  </div>
+
+</section>
+
+</main>
+</div>
+
+<div id="toast"></div>
+
+<div id="loading">
+  <div class="box">Đang xử lý...</div>
+</div>
+
+<script>
+/* ==========================================================
+   CẤU HÌNH
+   ========================================================== */
+
+/*
+ * DÁN URL WEB APP GOOGLE APPS SCRIPT CỦA CODE.GS HIỆN TẠI
+ *
+ * Ví dụ:
+ * https://script.google.com/macros/s/XXXXXXXXXXXX/exec
+ */
+const API_URL = "DAN_URL_WEB_APP_CODE_GS_CUA_BAN_VAO_DAY";
+
+
+/* ==========================================================
+   BIẾN HỆ THỐNG
+   ========================================================== */
+
+let currentNV = "";
+let currentTenNV = "";
+let currentMethod = "QR";
+let currentKey = "";
+let currentOrder = null;
+let qrScanner = null;
+let scannerRunning = false;
+let scanTimer = null;
+let scanLocked = false;
+
+
+/* ==========================================================
+   HÀM GIAO TIẾP CODE.GS
+   ========================================================== */
+
+async function api(action, params = {}) {
+
+  if (!API_URL || API_URL.indexOf("DAN_URL_") === 0) {
+    throw new Error("Chưa nhập API_URL của Google Apps Script.");
+  }
+
+  const query = new URLSearchParams();
+
+  query.set("action", action);
+
+  Object.keys(params).forEach(function(key) {
+    const value = params[key];
+
+    if (value !== undefined && value !== null) {
+      query.set(key, String(value));
+    }
+  });
+
+  const url = API_URL + "?" + query.toString();
+
+  const response = await fetch(url, {
+    method: "GET",
+    redirect: "follow",
+    cache: "no-store"
+  });
+
+  if (!response.ok) {
+    throw new Error("HTTP " + response.status);
+  }
+
+  return await response.json();
+}
+
+
+/* ==========================================================
+   UI
+   ========================================================== */
+
+function showScreen(id) {
+
+  document.querySelectorAll(".screen").forEach(function(el) {
+    el.classList.remove("active");
+  });
+
+  const screen = document.getElementById(id);
+
+  if (screen) {
+    screen.classList.add("active");
+  }
+
+  window.scrollTo(0, 0);
+}
+
+
+function setLoading(show) {
+  document.getElementById("loading").style.display =
+    show ? "flex" : "none";
+}
+
+
+function toast(message, type = "normal") {
+
+  const el = document.getElementById("toast");
+
+  el.textContent = message;
+
+  if (type === "error") {
+    el.style.background = "#b91c1c";
+  }
+  else if (type === "ok") {
+    el.style.background = "#047857";
+  }
+  else {
+    el.style.background = "#111827";
+  }
+
+  el.style.display = "block";
+
+  clearTimeout(window.toastTimer);
+
+  window.toastTimer = setTimeout(function() {
+    el.style.display = "none";
+  }, 3000);
+}
+
+
+function setStatus(id, message, type = "") {
+
+  const el = document.getElementById(id);
+
+  if (!el) return;
+
+  el.textContent = message;
+
+  el.className = "status";
+
+  if (type) {
+    el.classList.add(type);
+  }
+}
+
+
+/* ==========================================================
+   BÍP
+   ========================================================== */
+
+function beep(loud = false) {
+
+  try {
+
+    const AudioContext =
+      window.AudioContext ||
+      window.webkitAudioContext;
+
+    if (!AudioContext) return;
+
+    const ctx = new AudioContext();
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.type = "sine";
+
+    /*
+     * Bíp thường:
+     * 880 Hz
+     *
+     * Bíp trùng QR:
+     * 1200 Hz, to hơn, kéo dài hơn
+     */
+    osc.frequency.value = loud ? 1200 : 880;
+
+    gain.gain.setValueAtTime(
+      loud ? 0.75 : 0.35,
+      ctx.currentTime
+    );
+
+    gain.gain.exponentialRampToValueAtTime(
+      0.001,
+      ctx.currentTime + (loud ? 0.55 : 0.18)
+    );
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.start();
+
+    osc.stop(
+      ctx.currentTime + (loud ? 0.55 : 0.18)
+    );
+
+    osc.onended = function() {
+      ctx.close();
+    };
+
+  } catch (e) {
+    console.log("Không phát được bíp:", e);
+  }
+}
+
+
+/* ==========================================================
+   LOGIN
+   ========================================================== */
+
+async function login() {
+
+  const maNV =
+    document.getElementById("loginMaNV").value.trim();
+
+  const matKhau =
+    document.getElementById("loginMatKhau").value.trim();
+
+  if (!maNV || !matKhau) {
+    toast("Vui lòng nhập mã nhân viên và mật khẩu.", "error");
+    return;
+  }
+
+  try {
+
+    setLoading(true);
+
+    const result = await api("dangNhap", {
+      maNV: maNV,
+      matKhau: matKhau
+    });
+
+    if (!result.ok) {
+      toast(result.msg || "Đăng nhập thất bại.", "error");
+      return;
+    }
+
+    currentNV = result.maNV || maNV;
+    currentTenNV = result.tenNV || "";
+
+    document.getElementById("headerUser").textContent =
+      currentTenNV
+        ? currentNV + " - " + currentTenNV
+        : currentNV;
+
+    localStorage.setItem("simple_maNV", currentNV);
+
+    showScreen("homeScreen");
+
+    toast("Đăng nhập thành công.", "ok");
+
+  } catch (err) {
+
+    toast(err.message || "Không kết nối được hệ thống.", "error");
+
+  } finally {
+
+    setLoading(false);
+
+  }
+}
+
+
+/* ==========================================================
+   LOGOUT
+   ========================================================== */
+
+function logout() {
+
+  stopScanner();
+
+  currentNV = "";
+  currentTenNV = "";
+  currentMethod = "QR";
+  currentKey = "";
+  currentOrder = null;
+
+  document.getElementById("headerUser").textContent =
+    "Chưa đăng nhập";
+
+  showScreen("loginScreen");
+}
+
+
+/* ==========================================================
+   LUỒNG QR
+   ========================================================== */
+
+async function startQRFlow() {
+
+  stopScanner();
+
+  currentMethod = "QR";
+  currentKey = "";
+  currentOrder = null;
+  scanLocked = false;
+
+  showScreen("scanScreen");
+
+  setStatus(
+    "scanStatus",
+    "Đưa mã QR vào khung camera. Đang chờ quét...",
+    ""
+  );
+
+  await startScanner();
+
+}
+
+
+/* ==========================================================
+   START CAMERA
+   ========================================================== */
+
+async function startScanner() {
+
+  const reader = document.getElementById("reader");
+
+  reader.innerHTML = "";
+
+  try {
+
+    qrScanner = new Html5Qrcode("reader");
+
+    await qrScanner.start(
+      {
+        facingMode: "environment"
+      },
+      {
+        fps: 10,
+        qrbox: {
+          width: 250,
+          height: 250
+        },
+        aspectRatio: 1.0
+      },
+      function(decodedText) {
+
+        if (scanLocked) return;
+
+        scanLocked = true;
+
+        /*
+         * QR đọc thành công -> BÍP
+         */
+        beep(false);
+
+        handleQR(decodedText);
+
+      },
+      function(errorMessage) {
+        /*
+         * Không làm gì khi từng frame chưa đọc được QR.
+         */
+      }
+    );
+
+    scannerRunning = true;
+
+    /*
+     * Sau 5 giây không nhận diện được:
+     * hỏi có muốn nhập ID bằng tay không.
+     */
+    clearTimeout(scanTimer);
+
+    scanTimer = setTimeout(function() {
+
+      if (!scanLocked) {
+        manualIdTimeoutChoice();
+      }
+
+    }, 5000);
+
+  } catch (err) {
+
+    setStatus(
+      "scanStatus",
+      "Không mở được camera. Có thể nhập ID bằng tay.",
+      "error"
+    );
+
+    toast("Không mở được camera.", "error");
+
+    clearTimeout(scanTimer);
+
+    scanTimer = setTimeout(function() {
+      manualIdTimeoutChoice();
+    }, 1000);
+
+  }
+
+}
+
+
+/* ==========================================================
+   STOP CAMERA
+   ========================================================== */
+
+async function stopScanner() {
+
+  clearTimeout(scanTimer);
+
+  if (qrScanner && scannerRunning) {
+
+    try {
+      await qrScanner.stop();
+    } catch (e) {}
+
+  }
+
+  if (qrScanner) {
+
+    try {
+      await qrScanner.clear();
+    } catch (e) {}
+
+  }
+
+  qrScanner = null;
+  scannerRunning = false;
+  scanLocked = false;
+}
+
+
+/* ==========================================================
+   QR ĐỌC ĐƯỢC
+   ========================================================== */
+
+async function handleQR(maQR) {
+
+  maQR = String(maQR || "").trim();
+
+  if (!maQR) {
+    scanLocked = false;
+    return;
+  }
+
+  clearTimeout(scanTimer);
+
+  await stopScanner();
+
+  currentMethod = "QR";
+  currentKey = maQR;
+
+  try {
+
+    setLoading(true);
+
+    /*
+     * Tìm QR trong hệ thống.
+     */
+    const result = await api("timDon", {
+      maQR: maQR,
+      phuongThuc: "QR"
+    });
+
+    /*
+     * QR chưa có:
+     * -> tạo đơn mới.
+     */
+    if (!result.ok && result.chuaCoDon) {
+
+      openCreateQR(maQR);
+
+      return;
+    }
+
+    /*
+     * QR đã có:
+     * kiểm tra GIAO DỊCH của QR trong ngày hiện tại.
+     * Như vậy cả đơn tạo từ ngày trước nhưng hôm nay đã
+     * được xử lý cũng được coi là QR trùng trong ngày.
+     */
+    if (result.ok) {
+
+      let duplicateToday = false;
+
+      try {
+        const check =
+          await api("kiemTraQRTrongNgay", {
+            maQR: maQR
+          });
+
+        duplicateToday =
+          !!(check.ok && check.trungTrongNgay);
+
+      } catch (e) {
+        /*
+         * Fallback cho trường hợp chưa cập nhật API mới.
+         */
+        duplicateToday = isToday(result.ngayNhap);
+      }
+
+      if (duplicateToday) {
+
+        /*
+         * QR TRÙNG TRONG NGÀY
+         * -> BÍP TO
+         */
+        beep(true);
+
+        const yes = window.confirm(
+          "⚠️ QR NÀY ĐÃ ĐƯỢC XỬ LÝ TRONG NGÀY HÔM NAY.\n\n" +
+          "Mã QR: " + maQR + "\n" +
+          "Mã đơn: " + (result.maDon || "") + "\n\n" +
+          "Bạn có muốn NHẬP TIẾP không?\n\n" +
+          "OK = NHẬP TIẾP\n" +
+          "Cancel = QUÉT TIẾP"
+        );
+
+        if (yes) {
+
+          currentOrder = result;
+
+          const qty = window.prompt(
+            "Nhập số lượng muốn nhập thêm:",
+            "1"
+          );
+
+          if (qty === null) {
+            startQRFlow();
+            return;
+          }
+
+          const soLuong = Number(qty);
+
+          if (!Number.isFinite(soLuong) || soLuong <= 0) {
+            toast("Số lượng không hợp lệ.", "error");
+            startQRFlow();
+            return;
+          }
+
+          await nhapHangQRDuplicate(
+            maQR,
+            soLuong
+          );
+
+        }
+        else {
+
+          /*
+           * NO -> tiếp tục quét.
+           */
+          startQRFlow();
+
+        }
+
+        return;
+      }
+
+      /*
+       * QR không trùng trong ngày -> xử lý bình thường.
+       */
+      showOrder(result);
+
+      return;
+    }
+
+    toast(
+      result.msg || "Không tìm thấy đơn.",
+      "error"
+    );
+
+    startQRFlow();
+
+  } catch (err) {
+
+    toast(
+      err.message || "Lỗi khi tìm QR.",
+      "error"
+    );
+
+    startQRFlow();
+
+  } finally {
+
+    setLoading(false);
+
+  }
+
+}
+
+
+/* ==========================================================
+   NHẬP TIẾP QR TRÙNG
+   ========================================================== */
+
+async function nhapHangQRDuplicate(maQR, soLuong) {
+
+  try {
+
+    setLoading(true);
+
+    const result = await api("nhapHang", {
+      maQR: maQR,
+      maNV: currentNV,
+      soLuongNhap: soLuong,
+      phuongThuc: "QR"
+    });
+
+    if (!result.ok) {
+
+      toast(
+        result.msg || "Không nhập được hàng.",
+        "error"
+      );
+
+      showOrder(currentOrder);
+      return;
+    }
+
+    toast(
+      "Đã nhập thêm " + soLuong + " hàng.",
+      "ok"
+    );
+
+    showOrder(result);
+
+  } catch (err) {
+
+    toast(
+      err.message || "Lỗi nhập hàng.",
+      "error"
+    );
+
+  } finally {
+
+    setLoading(false);
+
+  }
+
+}
+
+
+/* ==========================================================
+   TẠO ĐƠN QR
+   ========================================================== */
+
+function openCreateQR(maQR) {
+
+  currentMethod = "QR";
+  currentKey = maQR;
+
+  document.getElementById("createTitle").textContent =
+    "QR MỚI - TẠO ĐƠN";
+
+  document.getElementById("createStatus").textContent =
+    "QR chưa có trong hệ thống. Nhập thông tin để tạo đơn mới.";
+
+  document.getElementById("createStatus").className =
+    "status warn";
+
+  document.getElementById("fMaQR").value = maQR;
+
+  document.getElementById("fMaDon").value = "";
+
+  document.getElementById("fTenHang").value = "SPX";
+
+  document.getElementById("fSoLuong").value = "1";
+
+  document.getElementById("fTienHang").value = "";
+
+  /*
+   * QR: tiền ship mặc định 3.200đ
+   */
+  document.getElementById("fTienShip").value = "3200";
+
+  showScreen("createScreen");
+}
+
+
+/* ==========================================================
+   TẠO ĐƠN ID
+   ========================================================== */
+
+function openCreateID(idValue) {
+
+  currentMethod = "ID";
+  currentKey = idValue;
+
+  document.getElementById("createTitle").textContent =
+    "ID MỚI - TẠO ĐƠN";
+
+  document.getElementById("createStatus").textContent =
+    "ID chưa có trong hệ thống. QR để trống.";
+
+  document.getElementById("createStatus").className =
+    "status warn";
+
+  /*
+   * QR PHẢI ĐỂ TRỐNG
+   */
+  document.getElementById("fMaQR").value = "";
+
+  /*
+   * ID người dùng nhập
+   */
+  document.getElementById("fMaDon").value = idValue;
+
+  /*
+   * Tên hàng ID1 -> ID50
+   */
+  document.getElementById("fTenHang").value = "ID1";
+
+  nextIDProductName().then(function(tenHang) {
+    document.getElementById("fTenHang").value = tenHang;
+  });
+
+  document.getElementById("fSoLuong").value = "1";
+
+  document.getElementById("fTienHang").value = "";
+
+  /*
+   * ID: tiền ship mặc định 20.000đ
+   */
+  document.getElementById("fTienShip").value = "20000";
+
+  showScreen("createScreen");
+}
+
+
+/* ==========================================================
+   TÊN HÀNG ID1 -> ID50
+   ========================================================== */
+
+async function nextIDProductName() {
+
+  try {
+
+    const result =
+      await api("tenHangIDTiepTheo", {});
+
+    if (result.ok && result.tenHang) {
+      return result.tenHang;
+    }
+
+  } catch (e) {
+    console.log("Không lấy được bộ đếm ID từ Sheet:", e);
+  }
+
+  /*
+   * Fallback nếu API mới chưa được thêm vào code.gs.
+   */
+  let n =
+    Number(localStorage.getItem("simple_id_counter") || "0") + 1;
+
+  if (n > 50) n = 50;
+
+  return "ID" + n;
+}
+
+
+/* ==========================================================
+   GHI NHẬN ĐƠN ID SAU KHI TẠO
+   ========================================================== */
+
+function advanceIDCounter() {
+
+  let n =
+    Number(localStorage.getItem("simple_id_counter") || "0") + 1;
+
+  if (n <= 50) {
+    localStorage.setItem(
+      "simple_id_counter",
+      String(n)
+    );
+  }
+}
+
+
+/* ==========================================================
+   TẠO ĐƠN
+   ========================================================== */
+
+async function createOrder() {
+
+  const maQR =
+    document.getElementById("fMaQR").value.trim();
+
+  const maDon =
+    document.getElementById("fMaDon").value.trim();
+
+  const tenHang =
+    document.getElementById("fTenHang").value.trim();
+
+  const soLuong =
+    document.getElementById("fSoLuong").value.trim();
+
+  const tienHang =
+    document.getElementById("fTienHang").value.trim();
+
+  const tienShip =
+    document.getElementById("fTienShip").value.trim();
+
+  if (currentMethod === "QR" && !maQR) {
+
+    toast("QR không được để trống.", "error");
+    return;
+
+  }
+
+  if (currentMethod === "ID" && !maDon) {
+
+    toast("ID không được để trống.", "error");
+    return;
+
+  }
+
+  if (!tenHang) {
+
+    toast("Tên hàng không được để trống.", "error");
+    return;
+
+  }
+
+  if (!soLuong || Number(soLuong) <= 0) {
+
+    toast("Số lượng phải lớn hơn 0.", "error");
+    return;
+
+  }
+
+  try {
+
+    setLoading(true);
+
+    const result = await api("taoDonMoi", {
+
+      maQR: maQR,
+
+      maDon: maDon,
+
+      tenKH: "",
+
+      diaChi: "",
+
+      tenHang: tenHang,
+
+      soLuong: soLuong,
+
+      tienHang: tienHang,
+
+      tienShip: tienShip,
+
+      maNV: currentNV,
+
+      phuongThuc: currentMethod
+
+    });
+
+    if (!result.ok) {
+
+      toast(
+        result.msg || "Không tạo được đơn.",
+        "error"
+      );
+
+      return;
+    }
+
+    if (currentMethod === "ID") {
+      advanceIDCounter();
+    }
+
+    toast("Tạo đơn thành công.", "ok");
+
+    showOrder(result);
+
+  } catch (err) {
+
+    toast(
+      err.message || "Lỗi tạo đơn.",
+      "error"
+    );
+
+  } finally {
+
+    setLoading(false);
+
+  }
+
+}
+
+
+/* ==========================================================
+   HIỂN THỊ ĐƠN
+   ========================================================== */
+
+function showOrder(order) {
+
+  if (!order || !order.ok) {
+    toast("Dữ liệu đơn không hợp lệ.", "error");
+    return;
+  }
+
+  currentOrder = order;
+
+  currentMethod =
+    String(order.phuongThuc || currentMethod)
+      .toUpperCase();
+
+  currentKey =
+    currentMethod === "ID"
+      ? order.maDon
+      : order.maQR;
+
+  document.getElementById("rPhuongThuc").textContent =
+    currentMethod;
+
+  document.getElementById("rMaQR").textContent =
+    order.maQR || "(trống)";
+
+  document.getElementById("rMaDon").textContent =
+    order.maDon || "(trống)";
+
+  document.getElementById("rTenHang").textContent =
+    order.tenHang || "";
+
+  document.getElementById("rSoLuong").textContent =
+    order.soLuong ?? 0;
+
+  document.getElementById("rTonKho").textContent =
+    order.tonKho ?? 0;
+
+  document.getElementById("rTrangThai").textContent =
+    order.trangThai || "";
+
+  document.getElementById("rTienHang").textContent =
+    formatMoney(order.tienHang);
+
+  document.getElementById("rTienShip").textContent =
+    formatMoney(order.tienShip);
+
+  document.getElementById("actionQty").value = "1";
+
+  document.getElementById("photoStatus").textContent =
+    "QR và ID đều có thể chụp ảnh. Ảnh sẽ được lưu vào Google Drive, DON_HANG và LICH_SU của đúng đơn/giao dịch.";
+
+  document.getElementById("photoInput").value = "";
+
+  showScreen("orderScreen");
+}
+
+
+/* ==========================================================
+   NHẬP / GIAO / HOÀN
+   ========================================================== */
+
+function getActionQty() {
+
+  const qty =
+    Number(
+      document.getElementById("actionQty").value
+    );
+
+  if (!Number.isFinite(qty) || qty <= 0) {
+
+    toast(
+      "Số lượng thao tác phải lớn hơn 0.",
+      "error"
+    );
+
+    return null;
+  }
+
+  return qty;
+}
+
+
+async function doNhap() {
+
+  const qty = getActionQty();
+
+  if (qty === null) return;
+
+  await doAction(
+    "nhapHang",
+    "soLuongNhap",
+    qty,
+    "Đã nhập hàng."
+  );
+}
+
+
+async function doGiao() {
+
+  const qty = getActionQty();
+
+  if (qty === null) return;
+
+  await doAction(
+    "giaoHang",
+    "soLuongGiao",
+    qty,
+    "Đã giao hàng."
+  );
+}
+
+
+async function doHoan() {
+
+  const qty = getActionQty();
+
+  if (qty === null) return;
+
+  await doAction(
+    "hoanHang",
+    "soLuongHoan",
+    qty,
+    "Đã hoàn hàng."
+  );
+}
+
+
+async function doAction(
+  action,
+  qtyName,
+  qty,
+  successMessage
+) {
+
+  if (!currentOrder) {
+
+    toast("Chưa có đơn để xử lý.", "error");
+    return;
+
+  }
+
+  try {
+
+    setLoading(true);
+
+    const params = {
+
+      maQR: currentOrder.maQR || "",
+
+      maNV: currentNV,
+
+      phuongThuc: currentMethod
+
+    };
+
+    params[qtyName] = qty;
+
+    const result =
+      await api(action, params);
+
+    if (!result.ok) {
+
+      toast(
+        result.msg || "Xử lý thất bại.",
+        "error"
+      );
+
+      return;
+    }
+
+    toast(successMessage, "ok");
+
+    showOrder(result);
+
+  } catch (err) {
+
+    toast(
+      err.message || "Lỗi xử lý.",
+      "error"
+    );
+
+  } finally {
+
+    setLoading(false);
+
+  }
+
+}
+
+
+/* ==========================================================
+   ID: KHÔNG NHẬN DIỆN ĐƯỢC -> HỎI NHẬP TAY?
+   ========================================================== */
+
+function manualIdTimeoutChoice() {
+
+  if (scanLocked) return;
+
+  scanLocked = true;
+
+  clearTimeout(scanTimer);
+
+  stopScanner();
+
+  const yes = window.confirm(
+    "Camera không nhận diện được ID.\n\n" +
+    "Bạn có muốn nhập mã ID bằng tay không?\n\n" +
+    "OK = YES, nhập ID bằng tay\n" +
+    "Cancel = NO, quay lại quét QR"
+  );
+
+  if (yes) {
+
+    document.getElementById("manualIdInput").value = "";
+
+    showScreen("manualIdScreen");
+
+    setTimeout(function() {
+      document.getElementById("manualIdInput").focus();
+    }, 100);
+
+  }
+  else {
+
+    startQRFlow();
+
+  }
+
+}
+
+
+/* ==========================================================
+   TÌM ID BẰNG TAY
+   ========================================================== */
+
+async function findManualId() {
+
+  const idValue =
+    document.getElementById("manualIdInput")
+      .value
+      .trim();
+
+  if (!idValue) {
+
+    toast("Vui lòng nhập mã ID.", "error");
+    return;
+
+  }
+
+  currentMethod = "ID";
+  currentKey = idValue;
+
+  try {
+
+    setLoading(true);
+
+    const result = await api("timDon", {
+
+      maQR: idValue,
+
+      phuongThuc: "ID"
+
+    });
+
+    /*
+     * ID đã tồn tại
+     */
+    if (result.ok) {
+
+      showOrder(result);
+      return;
+
+    }
+
+    /*
+     * ID chưa tồn tại:
+     * tạo đơn mới.
+     */
+    if (
+      !result.ok &&
+      (
+        result.code === "KHONG_TIM_THAY" ||
+        result.chuaCoDon === false
+      )
+    ) {
+
+      openCreateID(idValue);
+      return;
+
+    }
+
+    toast(
+      result.msg || "Không tìm thấy ID.",
+      "error"
+    );
+
+  } catch (err) {
+
+    toast(
+      err.message || "Lỗi tìm ID.",
+      "error"
+    );
+
+  } finally {
+
+    setLoading(false);
+
+  }
+
+}
+
+
+/* ==========================================================
+   QUAY LẠI CAMERA
+   ========================================================== */
+
+function backToScanner() {
+  startQRFlow();
+}
+
+
+function stopScannerAndHome() {
+
+  stopScanner();
+
+  goHome();
+
+}
+
+
+function goHome() {
+
+  stopScanner();
+
+  showScreen("homeScreen");
+
+}
+
+
+/* ==========================================================
+   BÁO CÁO
+   ========================================================== */
+
+function todayInputValue() {
+
+  const d = new Date();
+
+  const y =
+    d.getFullYear();
+
+  const m =
+    String(d.getMonth() + 1)
+      .padStart(2, "0");
+
+  const day =
+    String(d.getDate())
+      .padStart(2, "0");
+
+  return y + "-" + m + "-" + day;
+}
+
+
+function openReport() {
+
+  stopScanner();
+
+  document.getElementById("reportDate").value =
+    todayInputValue();
+
+  document.getElementById("reportCard")
+    .classList.add("hidden");
+
+  showScreen("reportScreen");
+
+  loadReport();
+
+}
+
+
+async function loadReport() {
+
+  const dateValue =
+    document.getElementById("reportDate").value;
+
+  if (!dateValue) {
+    toast("Chọn ngày báo cáo.", "error");
+    return;
+  }
+
+  const parts =
+    dateValue.split("-");
+
+  const ngay =
+    parts[2] + "/" +
+    parts[1] + "/" +
+    parts[0];
+
+  try {
+
+    setLoading(true);
+
+    const result =
+      await api("baoCaoTrongNgay", {
+        ngay: ngay
+      });
+
+    if (!result.ok) {
+
+      toast(
+        result.msg || "Không lấy được báo cáo.",
+        "error"
+      );
+
+      return;
+    }
+
+    document.getElementById("reportCard")
+      .classList.remove("hidden");
+
+    document.getElementById("reportDateText")
+      .textContent =
+        "Báo cáo ngày " + (result.ngay || ngay);
+
+    document.getElementById("bcDonQR").textContent =
+      result.slDonQR ?? 0;
+
+    document.getElementById("bcDonID").textContent =
+      result.slDonID ?? 0;
+
+    document.getElementById("bcTongDon").textContent =
+      result.tongSoDon ?? 0;
+
+    document.getElementById("bcTongSL").textContent =
+      result.tongSoLuong ?? 0;
+
+    document.getElementById("bcTienHangQR").textContent =
+      formatMoney(result.tongTienHangQR);
+
+    document.getElementById("bcTienHangID").textContent =
+      formatMoney(result.tongTienHangID);
+
+    document.getElementById("bcShipQR").textContent =
+      formatMoney(result.tienShipQR);
+
+    document.getElementById("bcShipID").textContent =
+      formatMoney(result.tienShipID);
+
+    document.getElementById("bcTongTien").textContent =
+      formatMoney(result.tongTien);
+
+    document.getElementById("bcDonHoan").textContent =
+      result.slDonHoan ?? 0;
+
+    document.getElementById("bcSLHoan").textContent =
+      result.slHangHoan ?? 0;
+
+  } catch (err) {
+
+    toast(
+      err.message || "Lỗi báo cáo.",
+      "error"
+    );
+
+  } finally {
+
+    setLoading(false);
+
+  }
+
+}
+
+
+/* ==========================================================
+   GHI BÁO CÁO VÀO SHEET
+   ========================================================== */
+
+async function saveReport() {
+
+  const dateValue =
+    document.getElementById("reportDate").value;
+
+  if (!dateValue) return;
+
+  const parts =
+    dateValue.split("-");
+
+  const ngay =
+    parts[2] + "/" +
+    parts[1] + "/" +
+    parts[0];
+
+  try {
+
+    setLoading(true);
+
+    const result =
+      await api("ghiBaoCaoNgay", {
+        ngay: ngay
+      });
+
+    if (!result.ok) {
+
+      toast(
+        result.msg || "Không ghi được báo cáo.",
+        "error"
+      );
+
+      return;
+    }
+
+    toast(
+      result.msg || "Đã ghi báo cáo vào Sheet.",
+      "ok"
+    );
+
+  } catch (err) {
+
+    toast(
+      err.message || "Lỗi ghi báo cáo.",
+      "error"
+    );
+
+  } finally {
+
+    setLoading(false);
+
+  }
+
+}
+
+
+/* ==========================================================
+   CHỤP ẢNH / LƯU ẢNH
+   ========================================================== */
+
+function takePhoto() {
+  const input = document.getElementById("photoInput");
+
+  if (!input) return;
+
+  /*
+   * Trên điện thoại, input capture="environment" sẽ mở camera.
+   * Trên máy tính, có thể chọn file ảnh.
+   */
+  input.click();
+}
+
+
+function photoSelected(input) {
+
+  if (!input.files || !input.files.length) return;
+
+  const file = input.files[0];
+
+  if (!file.type || file.type.indexOf("image/") !== 0) {
+    toast("Vui lòng chọn/chụp một file ảnh.", "error");
+    input.value = "";
+    return;
+  }
+
+  compressImage(file, 1280, 0.78)
+    .then(function(base64) {
+      return savePhoto(base64);
+    })
+    .catch(function(err) {
+      toast(
+        err.message || "Không xử lý được ảnh.",
+        "error"
+      );
+    });
+}
+
+
+function compressImage(file, maxSize, quality) {
+
+  return new Promise(function(resolve, reject) {
+
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+
+      const img = new Image();
+
+      img.onload = function() {
+
+        let width = img.width;
+        let height = img.height;
+
+        if (width > maxSize || height > maxSize) {
+
+          if (width >= height) {
+            height = Math.round(
+              height * maxSize / width
+            );
+            width = maxSize;
+          } else {
+            width = Math.round(
+              width * maxSize / height
+            );
+            height = maxSize;
+          }
+
+        }
+
+        const canvas =
+          document.createElement("canvas");
+
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext("2d");
+
+        ctx.drawImage(
+          img,
+          0,
+          0,
+          width,
+          height
+        );
+
+        const dataUrl =
+          canvas.toDataURL(
+            "image/jpeg",
+            quality
+          );
+
+        resolve(dataUrl);
+
+      };
+
+      img.onerror = function() {
+        reject(
+          new Error("Không đọc được ảnh.")
+        );
+      };
+
+      img.src = e.target.result;
+
+    };
+
+    reader.onerror = function() {
+      reject(
+        new Error("Không đọc được file ảnh.")
+      );
+    };
+
+    reader.readAsDataURL(file);
+
+  });
+}
+
+
+async function savePhoto(base64Image) {
+
+  if (!currentOrder) {
+
+    toast(
+      "Chưa có đơn. Hãy tạo/tìm đơn trước.",
+      "error"
+    );
+
+    return;
+  }
+
+  try {
+
+    setLoading(true);
+
+    const result =
+      await postAPI(
+        "luuAnhNhanDien",
+        {
+          /*
+           * QR: gui maQR.
+           * ID: backend timDon(..., "ID") can maDon.
+           */
+          maQR:
+            currentMethod === "ID"
+              ? (currentOrder.maDon || "")
+              : (currentOrder.maQR || ""),
+          phuongThuc: currentMethod,
+          maNV: currentNV,
+          anh: base64Image,
+          hanhDong: ""
+        }
+      );
+
+    if (!result.ok) {
+
+      toast(
+        result.msg || "Không lưu được ảnh.",
+        "error"
+      );
+
+      return;
+    }
+
+    document.getElementById("photoStatus").textContent =
+      "✓ Đã chụp và lưu ảnh thành công.";
+
+    toast(
+      "Ảnh đã được lưu vào Google Drive và lịch sử.",
+      "ok"
+    );
+
+  } catch (err) {
+
+    toast(
+      err.message || "Lỗi lưu ảnh.",
+      "error"
+    );
+
+  } finally {
+
+    setLoading(false);
+
+  }
+
+}
+
+
+/*
+ * POST riêng cho ảnh.
+ *
+ * code.gs hiện tại nhận:
+ * action, maQR, phuongThuc, maNV, anh, hanhDong
+ * qua doPost().
+ */
+async function postAPI(action, data = {}) {
+
+  if (!API_URL || API_URL.indexOf("DAN_URL_") === 0) {
+    throw new Error(
+      "Chưa nhập API_URL của Google Apps Script."
+    );
+  }
+
+  const payload = Object.assign(
+    { action: action },
+    data
+  );
+
+  const response = await fetch(
+    API_URL,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+      body: JSON.stringify(payload),
+      redirect: "follow"
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error("HTTP " + response.status);
+  }
+
+  return await response.json();
+}
+
+
+/* ==========================================================
+   TIỆN ÍCH
+   ========================================================== */
+
+
+function formatMoney(value) {
+
+  const n = Number(value || 0);
+
+  if (!Number.isFinite(n)) return "0";
+
+  return n.toLocaleString("vi-VN");
+
+}
+
+
+function isToday(value) {
+
+  if (!value) return false;
+
+  const d = new Date(value);
+
+  if (Number.isNaN(d.getTime())) {
+    return false;
+  }
+
+  const now = new Date();
+
+  return (
+    d.getFullYear() === now.getFullYear() &&
+    d.getMonth() === now.getMonth() &&
+    d.getDate() === now.getDate()
+  );
+
+}
+
+
+/* ==========================================================
+   KHỞI ĐỘNG
+   ========================================================== */
+
+(function init() {
+
+  const savedNV =
+    localStorage.getItem("simple_maNV");
+
+  if (savedNV) {
+    /*
+     * Không tự đăng nhập.
+     * Chỉ giữ lại mã NV để người dùng tiện nhập.
+     */
+    document.getElementById("loginMaNV").value =
+      savedNV;
+  }
+
+  /*
+   * Khi bấm Enter ở ô mật khẩu.
+   */
+  document.getElementById("loginMatKhau")
+    .addEventListener("keydown", function(e) {
+
+      if (e.key === "Enter") {
+        login();
+      }
+
+    });
+
+  /*
+   * Khi bấm Enter ở ô ID.
+   */
+  document.getElementById("manualIdInput")
+    .addEventListener("keydown", function(e) {
+
+      if (e.key === "Enter") {
+        findManualId();
+      }
+
+    });
+
+})();
+</script>
+
+</body>
+</html>
