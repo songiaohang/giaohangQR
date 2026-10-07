@@ -2057,101 +2057,156 @@ function cropImageRegion(
    OCR RIÊNG DÒNG MÃ ID
    ========================================================== */
 
-async function nhanDienIDTheoVung(
-  imageDataUrl
-) {
+async function nhanDienIDTheoVung(imageDataUrl) {
 
   try {
 
     /*
-     * Tem mẫu của bạn:
+     * Thử nhiều vùng quanh dòng:
      *
      * ID đơn hàng : 852348872
      *
-     * Chỉ lấy vùng phía trên bên trái.
+     * để tránh trường hợp camera
+     * thay đổi tỷ lệ ảnh.
      */
 
-    const idRegion =
-      await cropImageRegion(
-        imageDataUrl,
-        0.04,
-        0.075,
-        0.48,
-        0.115
-      );
+    const regions = [
+
+      {
+        x: 0.00,
+        y: 0.04,
+        w: 0.55,
+        h: 0.20
+      },
+
+      {
+        x: 0.02,
+        y: 0.07,
+        w: 0.55,
+        h: 0.15
+      },
+
+      {
+        x: 0.05,
+        y: 0.09,
+        w: 0.50,
+        h: 0.12
+      }
+
+    ];
 
 
-    const text =
-      await nhanDienIDBangOCR(
-        idRegion
-      );
-
-
-    console.log(
-      "Kết quả OCR ID:",
-      text
-    );
-
-
-    /*
-     * Chuẩn hóa một số ký tự
-     * OCR thường nhầm.
-     */
-
-    const cleaned =
-      String(text || "")
-        .replace(/[Oo]/g, "0")
-        .replace(/[Il]/g, "1")
-        .replace(/[Ss]/g, "5")
-        .replace(/\s/g, "");
-
-
-    /*
-     * Mã ID của tem này là
-     * một chuỗi số.
-     */
-
-    const matches =
-      cleaned.match(
-        /\d{8,12}/g
-      );
-
-
-    if (
-      !matches ||
-      !matches.length
+    for (
+      let i = 0;
+      i < regions.length;
+      i++
     ) {
 
+      const r = regions[i];
+
+
+      /*
+       * Cắt vùng ảnh.
+       */
+
+      const region =
+        await cropImageRegion(
+          imageDataUrl,
+          r.x,
+          r.y,
+          r.w,
+          r.h
+        );
+
+
+      /*
+       * OCR vùng này.
+       */
+
+      const text =
+        await nhanDienIDBangOCR(
+          region
+        );
+
+
       console.log(
-        "Không tìm thấy chuỗi ID:",
+        "OCR vùng",
+        i + 1,
+        ":",
         text
       );
 
-      return {
-        ok: false,
-        maDon: "",
-        tenKH: "",
-        diaChi: ""
-      };
+
+      /*
+       * Chuẩn hóa các ký tự OCR
+       * thường nhầm với số.
+       */
+
+      const cleaned =
+        String(text || "")
+          .replace(/[OoQq]/g, "0")
+          .replace(/[Il|]/g, "1")
+          .replace(/[Zz]/g, "2")
+          .replace(/[Ss]/g, "5")
+          .replace(/[Bb]/g, "8");
+
+
+      /*
+       * Tìm chuỗi từ 8 đến 12 chữ số.
+       */
+
+      const matches =
+        cleaned.match(
+          /\d{8,12}/g
+        );
+
+
+      if (
+        matches &&
+        matches.length
+      ) {
+
+        const maDon =
+          matches[0];
+
+
+        console.log(
+          "ĐÃ NHẬN ID:",
+          maDon
+        );
+
+
+        return {
+
+          ok: true,
+
+          maDon: maDon,
+
+          tenKH: "",
+
+          diaChi: ""
+
+        };
+
+      }
 
     }
 
 
-    const maDon =
-      matches[0];
-
+    /*
+     * Cả 3 vùng đều không nhận được.
+     */
 
     console.log(
-      "ĐÃ NHẬN ID:",
-      maDon
+      "OCR không tìm thấy mã ID."
     );
 
 
     return {
 
-      ok: true,
+      ok: false,
 
-      maDon: maDon,
+      maDon: "",
 
       tenKH: "",
 
@@ -2166,6 +2221,7 @@ async function nhanDienIDTheoVung(
       "Lỗi OCR ID:",
       err
     );
+
 
     return {
 
