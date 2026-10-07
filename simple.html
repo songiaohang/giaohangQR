@@ -1796,7 +1796,106 @@ async function doAction(
 
 }
 
+async function xuLyIDNhanDien(
+  maDon,
+  tenKH,
+  diaChi,
+  cameraPhoto
+) {
 
+  try {
+
+    const result = await api(
+      "nhapKhoIDMoi",
+      {
+        maDon: maDon,
+        tenKH: tenKH || "",
+        diaChi: diaChi || "",
+        maNV: currentNV
+      }
+    );
+
+
+    if (
+      !result ||
+      !result.ok
+    ) {
+
+      toast(
+        result && result.msg
+          ? result.msg
+          : "Không nhập kho được ID",
+        3000
+      );
+
+      startQRFlow();
+
+      return;
+    }
+
+
+    /*
+     * LƯU ĐƠN HIỆN TẠI
+     */
+
+    currentOrder = result;
+
+
+    /*
+     * LƯU ẢNH ID
+     */
+
+    if (cameraPhoto) {
+
+      await savePhoto(
+        cameraPhoto
+      );
+
+    }
+
+
+    /*
+     * THÔNG BÁO
+     */
+
+    toast(
+      "Đã nhận ID " +
+      maDon +
+      " - Nhập kho thành công",
+      2500
+    );
+
+
+    /*
+     * QUAY LẠI MÀN QUÉT QR
+     */
+
+    setTimeout(
+      function() {
+        startQRFlow();
+      },
+      500
+    );
+
+  }
+
+  catch (err) {
+
+    console.error(
+      "Lỗi xử lý ID OCR:",
+      err
+    );
+
+    toast(
+      "Lỗi nhập kho ID",
+      3000
+    );
+
+    startQRFlow();
+
+  }
+
+}
 /* ============================================================= 
 ID: KHÔNG ĐỌC ĐƯỢC QR -> THỬ OCR ID 
 ============================================================= */
