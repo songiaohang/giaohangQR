@@ -1896,9 +1896,292 @@ async function xuLyIDNhanDien(
   }
 
 }
+  
 /* ============================================================= 
 ID: KHÔNG ĐỌC ĐƯỢC QR -> THỬ OCR ID 
 ============================================================= */
+ /* ==========================================================
+   OCR ID
+   ========================================================== */
+
+async function nhanDienIDBangOCR(imageDataUrl) {
+
+  if (
+    typeof Tesseract === "undefined"
+  ) {
+
+    console.error(
+      "Chưa tải được Tesseract.js"
+    );
+
+    return "";
+
+  }
+
+  try {
+
+    const result =
+      await Tesseract.recognize(
+        imageDataUrl,
+        "eng",
+        {
+          logger: function(info) {
+            console.log(
+              "OCR:",
+              info.status,
+              info.progress
+            );
+          }
+        }
+      );
+
+    return (
+      result &&
+      result.data &&
+      result.data.text
+        ? result.data.text
+        : ""
+    );
+
+  } catch (err) {
+
+    console.error(
+      "Lỗi Tesseract:",
+      err
+    );
+
+    return "";
+
+  }
+
+}
+
+
+/* ==========================================================
+   CẮT VÙNG ẢNH
+   ========================================================== */
+
+function cropImageRegion(
+  imageDataUrl,
+  xRatio,
+  yRatio,
+  wRatio,
+  hRatio
+) {
+
+  return new Promise(
+    function(resolve, reject) {
+
+      const img =
+        new Image();
+
+      img.onload =
+        function() {
+
+          const x =
+            Math.round(
+              img.width * xRatio
+            );
+
+          const y =
+            Math.round(
+              img.height * yRatio
+            );
+
+          const width =
+            Math.round(
+              img.width * wRatio
+            );
+
+          const height =
+            Math.round(
+              img.height * hRatio
+            );
+
+          const canvas =
+            document.createElement(
+              "canvas"
+            );
+
+          canvas.width =
+            width;
+
+          canvas.height =
+            height;
+
+          const ctx =
+            canvas.getContext("2d");
+
+          ctx.drawImage(
+            img,
+            x,
+            y,
+            width,
+            height,
+            0,
+            0,
+            width,
+            height
+          );
+
+          resolve(
+            canvas.toDataURL(
+              "image/jpeg",
+              0.95
+            )
+          );
+
+        };
+
+      img.onerror =
+        function() {
+
+          reject(
+            new Error(
+              "Không đọc được ảnh OCR."
+            )
+          );
+
+        };
+
+      img.src =
+        imageDataUrl;
+
+    }
+  );
+
+}
+
+
+/* ==========================================================
+   OCR RIÊNG DÒNG MÃ ID
+   ========================================================== */
+
+async function nhanDienIDTheoVung(
+  imageDataUrl
+) {
+
+  try {
+
+    /*
+     * Tem mẫu của bạn:
+     *
+     * ID đơn hàng : 852348872
+     *
+     * Chỉ lấy vùng phía trên bên trái.
+     */
+
+    const idRegion =
+      await cropImageRegion(
+        imageDataUrl,
+        0.04,
+        0.075,
+        0.48,
+        0.115
+      );
+
+
+    const text =
+      await nhanDienIDBangOCR(
+        idRegion
+      );
+
+
+    console.log(
+      "Kết quả OCR ID:",
+      text
+    );
+
+
+    /*
+     * Chuẩn hóa một số ký tự
+     * OCR thường nhầm.
+     */
+
+    const cleaned =
+      String(text || "")
+        .replace(/[Oo]/g, "0")
+        .replace(/[Il]/g, "1")
+        .replace(/[Ss]/g, "5")
+        .replace(/\s/g, "");
+
+
+    /*
+     * Mã ID của tem này là
+     * một chuỗi số.
+     */
+
+    const matches =
+      cleaned.match(
+        /\d{8,12}/g
+      );
+
+
+    if (
+      !matches ||
+      !matches.length
+    ) {
+
+      console.log(
+        "Không tìm thấy chuỗi ID:",
+        text
+      );
+
+      return {
+        ok: false,
+        maDon: "",
+        tenKH: "",
+        diaChi: ""
+      };
+
+    }
+
+
+    const maDon =
+      matches[0];
+
+
+    console.log(
+      "ĐÃ NHẬN ID:",
+      maDon
+    );
+
+
+    return {
+
+      ok: true,
+
+      maDon: maDon,
+
+      tenKH: "",
+
+      diaChi: ""
+
+    };
+
+
+  } catch (err) {
+
+    console.error(
+      "Lỗi OCR ID:",
+      err
+    );
+
+    return {
+
+      ok: false,
+
+      maDon: "",
+
+      tenKH: "",
+
+      diaChi: ""
+
+    };
+
+  }
+
+}
   async function manualIdTimeoutChoice() { if (scanLocked) { return; } scanLocked = true; clearTimeout(scanTimer); /* * Chụp ảnh hiện tại từ camera trước khi dừng camera. */ const cameraPhoto = captureScannerFrame(); stopScanner(); /* * Không có hình ảnh thì chuyển sang hỏi nhập tay. */ if (!cameraPhoto) { hoiNhapIDBangTay(); return; } /* * Thử OCR 3 vùng: * - Mã đơn * - Tên KH * - Địa chỉ */ const result = await nhanDienIDTheoVung(cameraPhoto); /* * OCR đọc Mã đơn */ if (result && result.ok && result.maDon) { /* * Lưu thông tin ID hiện tại. */ currentMethod = "ID"; currentOrder = { maQR: "", maDon: result.maDon, tenKH: result.tenKH || "", diaChi: result.diaChi || "", tenHang: "", soLuong: 1, tienHang: "", tienShip: 20000 }; /* * Báo cho người dùng biết đã được nhận dạng. */ beep(false); toast( "Đã nhận dạng ID: " + result.maDon, 2500 ); /* * Tự động sang bước xử lý ID. * * Hàm này chúng ta sẽ kết nối ở bước tiếp theo. */ await xuLyIDNhanDien( result.maDon, result.tenKH || "", result.diaChi || "", cameraPhoto ); return; } /* * OCR không đọc được ID * -> hỏi người dùng có nhập bằng tay không. */ hoiNhapIDBangTay(); } /* =========================================================== HỎI NHẬP ID BẰNG TAY =========================================================== */ function hoiNhapIDBangTay() { const yes = window.confirm( "Camera không nhận được ID.\n\n" + "Bạn có muốn nhập mã ID bằng tay không?\n\n" + "OK = YES, nhập ID bằng tay\n" + "Hủy = KHÔNG, quay lại quét QR" ); if (yes) { document.getElementById( "manualIdInput" ).value = ""; showScreen("manualIdScreen"); setTimeout(function() { document.getElementById( "manualIdInput" ).focus(); }, 100); } else { startQRFlow(); } }
 
 
