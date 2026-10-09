@@ -236,7 +236,9 @@ input{
       <button class="btn-main" onclick="startQRFlow()">
         📷 QUÉT QR
       </button>
-
+<button class="btn-green" onclick="giaoTatCaHangHomNay()">
+  📦 GIAO TOÀN BỘ HÀNG HÔM NAY
+</button>
       <button class="btn-purple" onclick="openReport()">
         📊 BÁO CÁO CUỐI NGÀY
       </button>
@@ -1718,7 +1720,49 @@ async function doGiao() {
   );
 }
 
+async function giaoTatCaHangHomNay() {
+  if (!currentNV) {
+    toast("Vui lòng đăng nhập trước.", "error");
+    return;
+  }
 
+  const dongY = confirm(
+    "Bạn có chắc muốn giao toàn bộ số hàng còn trong kho " +
+    "của các đơn nhập hôm nay không?\n\n" +
+    "Các đơn đã hoàn sẽ được bỏ qua."
+  );
+
+  if (!dongY) return;
+
+  try {
+    setLoading(true);
+
+    const result = await api("giaoTatCaHangHomNay", {
+      maNV: currentNV
+    });
+
+    if (!result || !result.ok) {
+      toast(
+        result?.msg || "Không thể giao hàng hàng loạt.",
+        "error"
+      );
+      return;
+    }
+
+    alert(
+      "ĐÃ XỬ LÝ GIAO HÀNG\n\n" +
+      "Số đơn giao thành công: " + (result.soDonGiao || 0) +
+      "\nSố lượng đã giao: " + (result.tongSoLuong || 0) +
+      "\nĐơn bỏ qua: " + (result.soDonBoQua || 0) +
+      "\nĐơn lỗi: " + (result.soDonLoi || 0)
+    );
+
+  } catch (err) {
+    toast(err.message || "Lỗi giao hàng hàng loạt.", "error");
+  } finally {
+    setLoading(false);
+  }
+}
 async function doHoan() {
 
   const qty = getActionQty();
