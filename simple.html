@@ -1749,13 +1749,22 @@ async function giaoTatCaHangHomNay() {
       return;
     }
 
-    alert(
-      "ĐÃ XỬ LÝ GIAO HÀNG\n\n" +
-      "Số đơn giao thành công: " + (result.soDonGiao || 0) +
-      "\nSố lượng đã giao: " + (result.tongSoLuong || 0) +
-      "\nĐơn bỏ qua: " + (result.soDonBoQua || 0) +
-      "\nĐơn lỗi: " + (result.soDonLoi || 0)
-    );
+   alert(
+  "ĐÃ XỬ LÝ GIAO HÀNG\n\n" +
+  "Số đơn giao thành công: " + (result.soDonGiao || 0) +
+  "\nSố lượng đã giao: " + (result.tongSoLuong || 0) +
+  "\nĐơn bỏ qua: " + (result.soDonBoQua || 0) +
+  "\nĐơn lỗi: " + (result.soDonLoi || 0) +
+  "\n\n" +
+  (
+    result.baoCaoDaGhi
+      ? "Báo cáo đã ghi vào Sheet."
+      : "Chưa ghi được báo cáo: " + (result.baoCaoMsg || "Lỗi chưa xác định")
+  )
+);
+
+// Mo bao cao ngay tren dien thoai.
+openReport();
 
   } catch (err) {
     toast(err.message || "Lỗi giao hàng hàng loạt.", "error");
