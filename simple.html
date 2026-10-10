@@ -7,8 +7,10 @@
 
 <!-- Thư viện quét QR -->
 <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+  
 <!-- Thư viện nhận diện chữ và mã ID -->
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  
 <style>
 *{box-sizing:border-box}
 body{
@@ -2191,7 +2193,7 @@ async function nhanDienIDTheoVung(imageDataUrl) {
         ":",
         text
       );
-
+console.log("KIỂM TRA OCR - VÙNG", i + 1, "KẾT QUẢ:", JSON.stringify(text));
 
       /*
        * Chuẩn hóa các ký tự OCR
