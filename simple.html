@@ -1753,6 +1753,8 @@ async function giaoTatCaHangHomNay() {
   "ĐÃ XỬ LÝ GIAO HÀNG\n\n" +
   "Số đơn giao thành công: " + (result.soDonGiao || 0) +
   "\nSố lượng đã giao: " + (result.tongSoLuong || 0) +
+  "\nTổng tiền hàng: " + Number(result.tongTienHang || 0).toLocaleString("vi-VN") + " đ" +
+  "\nTổng tiền Ship: " + Number(result.tongTienShip || 0).toLocaleString("vi-VN") + " đ" +
   "\nĐơn bỏ qua: " + (result.soDonBoQua || 0) +
   "\nĐơn lỗi: " + (result.soDonLoi || 0) +
   "\n\n" +
