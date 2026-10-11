@@ -1964,34 +1964,28 @@ ID: KHÔNG ĐỌC ĐƯỢC QR -> THỬ OCR ID
 
 async function nhanDienIDBangOCR(imageDataUrl) {
 
-  if (
-    typeof Tesseract === "undefined"
-  ) {
-
-    console.error(
-      "Chưa tải được Tesseract.js"
-    );
-
+  if (typeof Tesseract === "undefined") {
+    console.error("Chưa tải được Tesseract.js");
     return "";
-
   }
 
   try {
+    const result = await Tesseract.recognize(
+      imageDataUrl,
+      "eng",
+      {
+        logger: function(info) {
+          console.log(
+            "OCR:",
+            info.status,
+            info.progress
+          );
+        },
 
-    const result =
-      await Tesseract.recognize(
-        imageDataUrl,
-        "eng",
-        {
-          logger: function(info) {
-            console.log(
-              "OCR:",
-              info.status,
-              info.progress
-            );
-          }
-        }
-      );
+        tessedit_char_whitelist: "0123456789",
+        tessedit_pageseg_mode: "7"
+      }
+    );
 
     return (
       result &&
@@ -2002,16 +1996,9 @@ async function nhanDienIDBangOCR(imageDataUrl) {
     );
 
   } catch (err) {
-
-    console.error(
-      "Lỗi Tesseract:",
-      err
-    );
-
+    console.error("Lỗi Tesseract:", err);
     return "";
-
   }
-
 }
 
 
