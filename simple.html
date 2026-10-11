@@ -2056,6 +2056,7 @@ async function nhanDienIDBangOCR(imageDataUrl) {
    ========================================================== */
 
 
+
 function cropImageRegion(
   imageDataUrl,
   xRatio,
@@ -2067,84 +2068,30 @@ function cropImageRegion(
     const img = new Image();
 
     img.onload = function() {
-      try {
-        const x = Math.max(
-          0,
-          Math.round(img.width * xRatio)
-        );
+      const x = Math.round(img.width * xRatio);
+      const y = Math.round(img.height * yRatio);
+      const width = Math.round(img.width * wRatio);
+      const height = Math.round(img.height * hRatio);
 
-        const y = Math.max(
-          0,
-          Math.round(img.height * yRatio)
-        );
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
 
-        const width = Math.min(
-          img.width - x,
-          Math.round(img.width * wRatio)
-        );
+      const ctx = canvas.getContext("2d");
 
-        const height = Math.min(
-          img.height - y,
-          Math.round(img.height * hRatio)
-        );
+      ctx.drawImage(
+        img,
+        x,
+        y,
+        width,
+        height,
+        0,
+        0,
+        width,
+        height
+      );
 
-        if (width <= 0 || height <= 0) {
-          reject(new Error("Vùng ảnh OCR không hợp lệ."));
-          return;
-        }
-
-        // Phóng to ảnh để chữ ID dễ đọc hơn.
-        const scale = 3;
-        const canvas = document.createElement("canvas");
-
-        canvas.width = width * scale;
-        canvas.height = height * scale;
-
-        const ctx = canvas.getContext("2d");
-
-        if (!ctx) {
-          reject(new Error("Không tạo được vùng xử lý ảnh."));
-          return;
-        }
-
-        // Nội suy khi phóng to.
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = "high";
-
-        ctx.drawImage(
-          img,
-          x, y, width, height,
-          0, 0, canvas.width, canvas.height
-        );
-
-        // Tăng tương phản nhẹ, giữ nguyên màu sắc tương đối.
-        const image = ctx.getImageData(
-          0, 0, canvas.width, canvas.height
-        );
-
-        const pixels = image.data;
-        const contrast = 1.35;
-        const brightness = 5;
-
-        for (let i = 0; i < pixels.length; i += 4) {
-          for (let c = 0; c < 3; c++) {
-            const value =
-              (pixels[i + c] - 128) * contrast +
-              128 + brightness;
-
-            pixels[i + c] = Math.max(
-              0,
-              Math.min(255, value)
-            );
-          }
-        }
-
-        ctx.putImageData(image, 0, 0);
-
-        resolve(canvas.toDataURL("image/png"));
-      } catch (err) {
-        reject(err);
-      }
+      resolve(canvas.toDataURL("image/jpeg", 0.95));
     };
 
     img.onerror = function() {
@@ -2154,6 +2101,7 @@ function cropImageRegion(
     img.src = imageDataUrl;
   });
 }
+
 
 
 /* ==========================================================
