@@ -968,11 +968,14 @@ function captureScannerFrame() {
   }
 
 }
+
 async function startScanner() {
 
   const reader = document.getElementById("reader");
 
   reader.innerHTML = "";
+  reader.style.position = "relative";
+
 
   try {
 
