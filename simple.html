@@ -1028,6 +1028,15 @@ async function startScanner() {
     );
 
     scannerRunning = true;
+    
+    // Hiển thị khung chữ nhật căn dòng ID trên camera
+    const readerBox = document.getElementById("reader");
+
+    if (!readerBox.querySelector(".id-scan-guide")) {
+      const guide = document.createElement("div");
+      guide.className = "id-scan-guide";
+      readerBox.appendChild(guide);
+    }
 
     /*
      * Sau 5 giây không nhận diện được:
