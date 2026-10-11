@@ -111,6 +111,39 @@ input{
   border-radius:14px;
   background:#111;
 }
+  
+/* Khung căn dòng ID đơn hàng */
+#reader {
+  position: relative;
+}
+
+#reader .id-scan-guide {
+  position: absolute;
+  left: 3%;
+  top: 12%;
+  width: 94%;
+  height: 16%;
+  box-sizing: border-box;
+  border: 2px solid #00e676;
+  border-radius: 6px;
+  background: rgba(0, 230, 118, 0.08);
+  z-index: 10;
+  pointer-events: none;
+}
+
+#reader .id-scan-guide::after {
+  content: "CĂN DÒNG ID ĐƠN HÀNG VÀO ĐÂY";
+  position: absolute;
+  left: 0;
+  top: -25px;
+  padding: 3px 6px;
+  color: #fff;
+  background: #087f45;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
 .result-grid{
   display:grid;
   grid-template-columns:1fr 1fr;
