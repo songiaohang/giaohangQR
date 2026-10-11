@@ -2108,186 +2108,111 @@ function cropImageRegion(
    OCR RIÊNG DÒNG MÃ ID
    ========================================================== */
 
+
 async function nhanDienIDTheoVung(imageDataUrl) {
-
   try {
-
-    /*
-     * Thử nhiều vùng quanh dòng:
-     *
-     * ID đơn hàng : 852348872
-     *
-     * để tránh trường hợp camera
-     * thay đổi tỷ lệ ảnh.
-     */
-
     const regions = [
+      { x: 0.00, y: 0.04, w: 0.72, h: 0.24 },
+      { x: 0.00, y: 0.06, w: 0.80, h: 0.20 },
+      { x: 0.02, y: 0.08, w: 0.75, h: 0.16 }
+    ];
 
-{
-x: 0.00,
-y: 0.04,
-w: 0.72,
-h: 0.24
-},
-
-{
-x: 0.00,
-y: 0.06,
-w: 0.80,
-h: 0.20
-},
-
-{
-x: 0.02,
-y: 0.08,
-w: 0.75,
-h: 0.16
-}
-
-];
-
-
-    for (
-      let i = 0;
-      i < regions.length;
-      i++
-    ) {
-
+    for (let i = 0; i < regions.length; i++) {
       const r = regions[i];
 
-
-      /*
-       * Cắt vùng ảnh.
-       */
-
-      const region =
-        await cropImageRegion(
-          imageDataUrl,
-          r.x,
-          r.y,
-          r.w,
-          r.h
-        );
-
-
-      /*
-       * OCR vùng này.
-       */
-
-      const text =
-        await nhanDienIDBangOCR(
-          region
-        );
-
-
-      console.log(
-        "OCR vùng",
-        i + 1,
-        ":",
-        text
+      const region = await cropImageRegion(
+        imageDataUrl,
+        r.x,
+        r.y,
+        r.w,
+        r.h
       );
-    alert("OCR vùng " + (i + 1) + ":\n" + (text || "Không đọc được chữ"));
-      /*
-       * Chuẩn hóa các ký tự OCR
-       * thường nhầm với số.
-       */
 
-      const cleaned =
-        String(text || "")
-          .replace(/[OoQq]/g, "0")
-          .replace(/[Il|]/g, "1")
-          .replace(/[Zz]/g, "2")
-          .replace(/[Ss]/g, "5")
-          .replace(/[Bb]/g, "8");
+      const text = String(
+        await nhanDienIDBangOCR(region) || ""
+      );
 
+      console.log("OCR vùng", i + 1, ":", text);
 
-      /*
-       * Tìm chuỗi từ 8 đến 12 chữ số.
-       */
+      // Chuẩn hóa chữ hoa, dấu tiếng Việt và khoảng trắng.
+      const normalized = text
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/gi, "d")
+        .toUpperCase()
+        .replace(/\s+/g, " ")
+        .trim();
 
-      const matches =
-        cleaned.match(
-          /\d{8,12}/g
-        );
+      // Chỉ tìm từ khóa ID ĐƠN HÀNG,
+      // cho phép OCR nhầm một vài ký tự.
+      const keywordRegex =
+        /I\s*D\s*D?\s*[ĐD]\s*[ƠO0]\s*N?\s*H\s*[ÀAÁA]?\s*N?\s*G?/i;
 
+      const keywordMatch = normalized.match(keywordRegex);
 
-      if (
-        matches &&
-        matches.length
-      ) {
-
-        const maDon =
-          matches[0];
-
-
-        console.log(
-          "ĐÃ NHẬN ID:",
-          maDon
-        );
-
-
-        return {
-
-          ok: true,
-
-          maDon: maDon,
-
-          tenKH: "",
-
-          diaChi: ""
-
-        };
-
+      if (!keywordMatch) {
+        console.log("Vùng", i + 1, ": chưa tìm thấy từ khóa ID đơn hàng.");
+        continue;
       }
 
+      const keywordEnd =
+        keywordMatch.index + keywordMatch[0].length;
+
+      // Chỉ xem phần nằm sau từ khóa.
+      const afterKeyword = normalized.slice(keywordEnd);
+
+      // Ưu tiên dãy số sau dấu hai chấm.
+      // Cho phép có khoảng trắng hoặc ký tự phân cách trước mã.
+      const colonIndex = afterKeyword.indexOf(":");
+      const searchText = colonIndex >= 0
+        ? afterKeyword.slice(colonIndex + 1)
+        : afterKeyword;
+
+      // Không chuyển O/I/S/B thành số tự động.
+      // Chỉ nhận dãy số liên tục có ít nhất 9 chữ số.
+      const numberMatch = searchText.match(/(?:^|\D)(\d{9,})(?!\d)/);
+
+      if (!numberMatch) {
+        console.log("Vùng", i + 1, ": tìm thấy từ khóa nhưng chưa có mã đủ 9 chữ số.");
+        continue;
+      }
+
+      const maDon = numberMatch[1];
+
+      console.log("ỨNG VIÊN ID:", maDon);
+
+      // Trả mã ứng viên để luồng hiện tại tiếp tục xử lý.
+      // Việc đối chiếu danh sách đơn hàng cần được xác nhận
+      // ở bước xử lý tiếp theo trước khi tự động hoàn tất.
+      return {
+        ok: true,
+        maDon: maDon,
+        tenKH: "",
+        diaChi: ""
+      };
     }
 
-
-    /*
-     * Cả 3 vùng đều không nhận được.
-     */
-
-    console.log(
-      "OCR không tìm thấy mã ID."
-    );
-
+    console.log("OCR không tìm thấy ID hợp lệ.");
 
     return {
-
       ok: false,
-
       maDon: "",
-
       tenKH: "",
-
       diaChi: ""
-
     };
-
 
   } catch (err) {
-
-    console.error(
-      "Lỗi OCR ID:",
-      err
-    );
-
+    console.error("Lỗi OCR ID:", err);
 
     return {
-
       ok: false,
-
       maDon: "",
-
       tenKH: "",
-
       diaChi: ""
-
     };
-
   }
-
 }
+
   async function manualIdTimeoutChoice() { if (scanLocked) { return; } scanLocked = true; clearTimeout(scanTimer); /* * Chụp ảnh hiện tại từ camera trước khi dừng camera. */ const cameraPhoto = captureScannerFrame();alert("KIỂM TRA ẢNH CAMERA: " + (cameraPhoto ? "CÓ ẢNH" : "KHÔNG CÓ ẢNH"));console.log("KIỂM TRA ẢNH CAMERA:", !!cameraPhoto);
 console.log("KIỂM TRA KIỂU ẢNH:", cameraPhoto ? cameraPhoto.substring(0, 30) : "KHÔNG CÓ ẢNH");  stopScanner(); /* * Không có hình ảnh thì chuyển sang hỏi nhập tay. */ if (!cameraPhoto) { hoiNhapIDBangTay(); return; } /* * Thử OCR 3 vùng: * - Mã đơn * - Tên KH * - Địa chỉ */ const result = await nhanDienIDTheoVung(cameraPhoto); /* * OCR đọc Mã đơn */ if (result && result.ok && result.maDon) { /* * Lưu thông tin ID hiện tại. */ currentMethod = "ID"; currentOrder = { maQR: "", maDon: result.maDon, tenKH: result.tenKH || "", diaChi: result.diaChi || "", tenHang: "", soLuong: 1, tienHang: "", tienShip: 20000 }; /* * Báo cho người dùng biết đã được nhận dạng. */ beep(false); toast( "Đã nhận dạng ID: " + result.maDon, 2500 ); /* * Tự động sang bước xử lý ID. * * Hàm này chúng ta sẽ kết nối ở bước tiếp theo. */ await xuLyIDNhanDien( result.maDon, result.tenKH || "", result.diaChi || "", cameraPhoto ); return; } /* * OCR không đọc được ID * -> hỏi người dùng có nhập bằng tay không. */ hoiNhapIDBangTay(); } /* =========================================================== HỎI NHẬP ID BẰNG TAY =========================================================== */ function hoiNhapIDBangTay() { const yes = window.confirm( "Camera không nhận được ID.\n\n" + "Bạn có muốn nhập mã ID bằng tay không?\n\n" + "OK = YES, nhập ID bằng tay\n" + "Hủy = KHÔNG, quay lại quét QR" ); if (yes) { document.getElementById( "manualIdInput" ).value = ""; showScreen("manualIdScreen"); setTimeout(function() { document.getElementById( "manualIdInput" ).focus(); }, 100); } else { startQRFlow(); } }
 
